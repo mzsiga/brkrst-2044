@@ -3,9 +3,9 @@ Welcome to the Github repository for the lab demonstration!
 
 > Contact information:\
 > Email:    michael.zsiga@gmail.com\
-> Twitter:  https://twitter.com/michael_zsiga/\
-> LinkedIn: https://www.linkedin.com/in/zigzag/\
-> Website:  https://zigbits.tech\
+> Twitter:  https://twitter.com/michael_zsiga/ \
+> LinkedIn: https://www.linkedin.com/in/zigzag/ \
+> Website:  https://zigbits.tech
 
 ## Reference topology
 Please reference this diagram when reviewing this Cisco Live session.

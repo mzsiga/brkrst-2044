@@ -15,7 +15,7 @@ NOTE: For all the Common Deployment Scenarios (CDS) you can load the initial con
 # CDS-1 Reference topology
 Here is the CDS-1 Reference topology
 
-![CDS-1 Reference topology](CDS-1_topology.jpg)
+![CDS-1 Reference topology](CDS-1_Topology.jpg)
 
 # CDS-1 Section 1: Static (Tragic) solution
 Make sure you have the initial configurations loaded on R1, FW1, BB1, BB2, and ISP-A. There should already be static (tragic) default routes on FW1 pointing to R1 for IPv4 and IPv6 respectively.

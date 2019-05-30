@@ -22,13 +22,15 @@ Make sure you have the initial configurations loaded on R1, FW1, BB1, BB2, and I
 
 We need to add a static (tragic) default route for IPv4 and IPv6 on R1.
 
-	ip route 0.0.0.0 0.0.0.0 51.51.1.1
+	```ip route 0.0.0.0 0.0.0.0 51.51.1.1
 	ipv6 route ::/0 2100:5100:51:1::1
+	```
 
 We also need to add static (tragic) routes for R1's networks that FW1 owns.
 
-	ip route 128.1.0.0 255.255.0.0 128.1.0.2
+	```ip route 128.1.0.0 255.255.0.0 128.1.0.2
 	ipv6 route 2001:1281::/44 2001:1281:1::2
+	```
 
 Below is a screenshot of these static tragic routes being configured on R1.
 
@@ -38,8 +40,9 @@ Because we are not running a dynamic solution between R1 and ISP-A, ISP-A doesn'
 
 On ISP-A we need to add these static tragic routes:
 
-	ip route 128.1.0.0 255.255.0.0 51.51.1.2
+	```ip route 128.1.0.0 255.255.0.0 51.51.1.2
 	ipv6 route 2001:1281::/44 2100:5100:51:1::2
+	```
 
 Here is a screenshot of these routes being configured on ISP-A:
 
@@ -66,13 +69,14 @@ Now that we have our initial configurations loaded on these devices, its time to
 
 To start with, we need to enable IPv6 unicast routing and then configure our interface towards ISP-A with IPv4 and IPv6 addresses. These are included in the initial configurations of R1 but are shown below for clarity.
 
-	ipv6 unicast-routing
+	```ipv6 unicast-routing
 
 	interface GigabitEthernet0/1
 	 description CONN_TO_ISP-A
 	 ip address 51.51.1.2 255.255.255.252
 	 ipv6 address 2100:5100:51:1::2/64
 	 no shutdown
+	 ```
 
 Below is a screenshot of these configurations being applied on R1.
 
@@ -82,13 +86,16 @@ Below is a screenshot of these configurations being applied on R1.
 
 Now that we have our IP addresses configured on R1 towards ISP-A, we need to configure R1's BGP neighbors with ISP-A. Our ASN for R1 is 64491.  When I am configuring BGP with multiple address families I prefer to disable the default IPv4 unicast address family with the command 'no bgp default ipv4-unicast' in the global BGP configuration. We configure neighbors under the BGP <ASN> process as shown below.
 
+```
 	router bgp 64491
  	 no bgp default ipv4-unicast
  	 neighbor 2100:5100:51:1::1 remote-as 64501
  	 neighbor 51.51.1.1 remote-as 64501
+```
 
 Then we activate each neighbor under the respective address family.
 
+```
 	address-family ipv4
    neighbor 51.51.1.1 activate
 	exit-address-family
@@ -96,9 +103,11 @@ Then we activate each neighbor under the respective address family.
 	address-family ipv6
 	 neighbor 2100:5100:51:1::1 activate
  	exit-address-family
+```
 
 We now specify R1's address prefixes that we want to announce to our neighbors.
 
+```
 	address-family ipv4
 	 neighbor 51.51.1.1 activate
    network 128.1.0.0
@@ -108,6 +117,7 @@ We now specify R1's address prefixes that we want to announce to our neighbors.
 	 neighbor 2100:5100:51:1::1 activate
    network 2001:1281::/44
   exit-address-family
+```
 
 Now we are going to apply a simple policy to show how to configure it.  For this example we only want to allow the default route in for both IPv4 and IPv6.  To do this we are going to create prefix-lists and then apply them in the corresponding BGP address family.  In the initial configuration for R1, we have already defined the below two prefixes that we will be using for this example.
 

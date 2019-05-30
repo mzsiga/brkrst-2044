@@ -4,7 +4,7 @@
 > Email:    michael.zsiga@gmail.com\
 > Twitter:  https://twitter.com/michael_zsiga \
 > LinkedIn: https://www.linkedin.com/in/zigzag \
-> Website:  https://zigbits.tech \
+> Website:  https://zigbits.tech
 
 This is Common Deployment Scenario (CDS) # 1 from the Cisco Live presentation BRKRST-2044 - Enterprise Multi-Homed Internet Edge Architectures. CDS 1 highlights the single router, single ISP connection deployment example.  Within this page are the steps to properly configure static (tragic) routing connectivity (Section 1) and dual stack BGP (IPv4/IPv6) connectivity (Section 2) to the Internet (INET).
 

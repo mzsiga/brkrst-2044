@@ -241,6 +241,6 @@ Here is a screenshot showing our ingress policy verification:
 
 # Thats a wrap for CDS-1
 
-The final configurations files for CDS-1 Section 1 are located under final-configs/CDS-1_Section_1
+The final configurations files for CDS-1 Section 1 are located under /final-configs/CDS-1_Section_1
 
-The final configurations files for CDS-1 Section 2 are located under final-configs/CDS-1_Section_2
+The final configurations files for CDS-1 Section 2 are located under /final-configs/CDS-1_Section_2

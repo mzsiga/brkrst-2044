@@ -238,3 +238,9 @@ ping 2001:1281:0:11::11
 Here is a screenshot showing our ingress policy verification:
 
 ![CDS-1 Section 2: R1's Ingress Verification](CDS-1_Section_2-07.png)
+
+# Thats a wrap for CDS-1
+
+The final configurations files for CDS-1 Section 1 are located under final-configs/CDS-1_Section_1
+
+The final configurations files for CDS-1 Section 2 are located under final-configs/CDS-1_Section_2

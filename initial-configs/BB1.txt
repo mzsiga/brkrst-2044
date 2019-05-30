@@ -1,0 +1,207 @@
+# BB1's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname BB1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$9cHG$TMgqJ1v3Pk5dcD8KH.vYm.
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 50.1.1.1 255.255.255.255
+ ipv6 address 2100:5000:1:1::1/128
+!
+interface Loopback10
+ ip address 50.10.10.10 255.255.255.0
+ ipv6 address 2100:5000:10:10::10/128
+!
+interface Loopback11
+ ip address 50.11.11.11 255.255.255.0
+ ipv6 address 2100:5000:11:11::11/128
+!
+interface Loopback12
+ ip address 50.12.12.12 255.255.255.0
+ ipv6 address 2100:5000:12:12::12/128
+!
+interface Loopback13
+ ip address 50.13.13.13 255.255.255.0
+ ipv6 address 2100:5000:13:13::13/128
+!
+interface Loopback14
+ ip address 50.14.14.14 255.255.255.0
+ ipv6 address 2100:5000:14:14::14/128
+!
+interface Loopback16
+ ip address 16.16.16.16 255.255.255.0
+ ipv6 address 2000:16:16:16::16/128
+!
+interface Loopback32
+ ip address 32.32.32.32 255.255.255.0
+!
+interface Loopback64
+ ip address 64.64.64.64 255.255.255.0
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 50.50.51.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:51::1/64
+!
+interface GigabitEthernet0/2
+ description CONN_TO_BB2
+ ip address 50.1.2.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:1:2::1/64
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router bgp 64500
+ bgp router-id 50.1.1.1
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:1:2::2 remote-as 64500
+ neighbor 2100:5000:1:2::2 description IPv6_iBGP_PEER_TO_BB2
+ neighbor 2100:5000:50:51::2 remote-as 64501
+ neighbor 2100:5000:50:51::2 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 50.1.2.2 remote-as 64500
+ neighbor 50.1.2.2 description IPv4_iBGP_PEER_TO_BB2
+ neighbor 50.50.51.2 remote-as 64501
+ neighbor 50.50.51.2 description IPv4_eBGP_PEER_ISP-A
+ !
+ address-family ipv4
+  network 16.16.16.0 mask 255.255.255.0
+  network 32.32.32.0 mask 255.255.255.0
+  network 50.0.0.0
+  network 50.1.1.1 mask 255.255.255.255
+  network 50.1.2.0 mask 255.255.255.0
+  network 50.10.10.0 mask 255.255.255.0
+  network 50.11.11.0 mask 255.255.255.0
+  network 50.12.12.0 mask 255.255.255.0
+  network 50.13.13.0 mask 255.255.255.0
+  network 50.14.14.0 mask 255.255.255.0
+  network 50.50.51.0 mask 255.255.255.0
+  network 64.64.64.0 mask 255.255.255.0
+  neighbor 50.1.2.2 activate
+  neighbor 50.1.2.2 send-community both
+  neighbor 50.50.51.2 activate
+  neighbor 50.50.51.2 send-community both
+  neighbor 50.50.51.2 default-originate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:16:16:16::16/128
+  network 2100:5000:1:1::1/128
+  network 2100:5000:1:2::/64
+  network 2100:5000:10:10::10/128
+  network 2100:5000:11:11::11/128
+  network 2100:5000:12:12::12/128
+  network 2100:5000:13:13::13/128
+  network 2100:5000:14:14::14/128
+  network 2100:5000:50:51::/64
+  neighbor 2100:5000:1:2::2 activate
+  neighbor 2100:5000:1:2::2 send-community both
+  neighbor 2100:5000:50:51::2 activate
+  neighbor 2100:5000:50:51::2 send-community both
+  neighbor 2100:5000:50:51::2 default-originate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

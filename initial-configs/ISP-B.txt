@@ -1,0 +1,186 @@
+# ISP-B's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname ISP-B
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$e0H9$BTUAhEEDWt9371jlgkZPV0
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 52.1.1.1 255.255.255.255
+ ipv6 address 2100:5200:1:1::1/128
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_BB2
+ ip address 50.50.52.2 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:52::2/64
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R2
+ ip address 52.52.2.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:2::1/64
+!
+interface GigabitEthernet0/3
+ description CONN_TO_R4
+ ip address 52.52.4.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:4::1/64
+!
+interface GigabitEthernet0/4
+ description CONN_TO_R6
+ ip address 52.52.6.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:6::1/64
+!
+interface GigabitEthernet0/5
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router bgp 64502
+ bgp router-id 52.1.1.1
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:50:52::1 remote-as 64500
+ neighbor 2100:5000:50:52::1 description IPv6_eBGP_PEER_TO_BB2
+ neighbor 2100:5200:52:2::2 remote-as 64492
+ neighbor 2100:5200:52:2::2 description IPv6_eBGP_PEER_TO_R2
+ neighbor 2100:5200:52:4::2 remote-as 64493
+ neighbor 2100:5200:52:4::2 description IPv6_eBGP_PEER_TO_R4
+ neighbor 2100:5200:52:6::2 remote-as 64494
+ neighbor 2100:5200:52:6::2 description IPv6_eBGP_PEER_TO_R6
+ neighbor 50.50.52.1 remote-as 64500
+ neighbor 50.50.52.1 description IPv4_eBGP_PEER_TO_BB2
+ neighbor 52.52.2.2 remote-as 64492
+ neighbor 52.52.2.2 description IPv4_eBGP_PEER_TO_R2
+ neighbor 52.52.4.2 remote-as 64493
+ neighbor 52.52.4.2 description IPv4_eBGP_PEER_TO_R4
+ neighbor 52.52.6.2 remote-as 64494
+ neighbor 52.52.6.2 description IPv4_eBGP_PEER_TO_R6
+ !
+ address-family ipv4
+  network 50.50.52.0 mask 255.255.255.0
+  network 52.0.0.0
+  network 52.1.1.1 mask 255.255.255.255
+  network 52.52.2.0 mask 255.255.255.252
+  network 52.52.4.0 mask 255.255.255.252
+  network 52.52.6.0 mask 255.255.255.252
+  neighbor 50.50.52.1 activate
+  neighbor 50.50.52.1 send-community both
+  neighbor 52.52.2.2 activate
+  neighbor 52.52.4.2 activate
+  neighbor 52.52.6.2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2100:5000:50:52::/64
+  network 2100:5200:1:1::1/128
+  network 2100:5200:52:1::/64
+  network 2100:5200:52:2::/64
+  network 2100:5200:52:4::/64
+  network 2100:5200:52:6::/64
+  neighbor 2100:5000:50:52::1 activate
+  neighbor 2100:5000:50:52::1 send-community both
+  neighbor 2100:5200:52:2::2 activate
+  neighbor 2100:5200:52:4::2 activate
+  neighbor 2100:5200:52:6::2 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

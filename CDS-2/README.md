@@ -98,7 +98,7 @@ router bgp 64492
 
 Here is a screenshot of this being configured on R2:
 
-![CDS-2 Section 1: Safety First](CDS-2_Section_1-01.jpg)
+![CDS-2 Section 1: Safety First](CDS-2_Section_1-01.png)
 
 ## Ingress policy
 
@@ -122,7 +122,7 @@ router bgp 64492
 
 Here is a screenshot of the ingress policy being created and applied.
 
-![CDS-2 Section 1: Ingress Policy](CDS-2_Section_1-02.jpg)
+![CDS-2 Section 1: Ingress Policy](CDS-2_Section_1-02.png)
 
 ## Egress policy
 
@@ -154,7 +154,7 @@ router bgp 64492
 
 Here is a screenshot of the egress policy being created and applied.
 
-![CDS-2 Section 1: Egress Policy](CDS-2_Section_1-03.jpg)
+![CDS-2 Section 1: Egress Policy](CDS-2_Section_1-03.png)
 
 ## Verification
 
@@ -169,9 +169,9 @@ show bgp ipv6 unicast 2001:1282::/44
 
 Here is a screenshot of the Ingress policy being verified.
 
-![CDS-2 Section 1: Ingress Policy Verified](CDS-2_Section_1-04.jpg)
+![CDS-2 Section 1: Ingress Policy Verified](CDS-2_Section_1-04.png)
 
-![CDS-2 Section 1: Ingress Policy Verified with Traceroute](CDS-2_Section_1-05.jpg)
+![CDS-2 Section 1: Ingress Policy Verified with Traceroute](CDS-2_Section_1-05.png)
 
 As you can see in the screenshots above, ISP-A is being selected to CDS-2's networks as we have configured.  
 
@@ -184,4 +184,4 @@ show bgp ipv6 unicast
 
 Here is a screenshot to show the output of these commands on R2.
 
-![CDS-2 Section 1: Egress Policy Verified](CDS-2_Section_1-06.jpg)
+![CDS-2 Section 1: Egress Policy Verified](CDS-2_Section_1-06.png)

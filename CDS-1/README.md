@@ -83,33 +83,30 @@ Below is a screenshot of these configurations being applied on R1.
 Now that we have our IP addresses configured on R1 towards ISP-A, we need to configure R1's BGP neighbors with ISP-A. Our ASN for R1 is 64491.  When I am configuring BGP with multiple address families I prefer to disable the default IPv4 unicast address family with the command 'no bgp default ipv4-unicast' in the global BGP configuration. We configure neighbors under the BGP <ASN> process as shown below.
 
 	router bgp 64491
- 	 no bgp log-neighbor-changes
  	 no bgp default ipv4-unicast
- 	 **neighbor** 2100:5100:51:1::1 remote-as 64501
- 	 neighbor 2100:5100:51:1::1 description IPv6_eBGP_PEER_TO_ISP-A
- 	 **neighbor 51.51.1.1 remote-as 64501**
- 	 neighbor 51.51.1.1 description IPv4_eBGP_PEER_TO_ISP-A
+ 	 neighbor 2100:5100:51:1::1 remote-as 64501
+ 	 neighbor 51.51.1.1 remote-as 64501
 
 Then we activate each neighbor under the respective address family.
 
 	address-family ipv4
-   **neighbor 51.51.1.1 activate**
+   neighbor 51.51.1.1 activate
  	exit-address-family
  	!
  	address-family ipv6
-   **neighbor 2100:5100:51:1::1 activate**
+   neighbor 2100:5100:51:1::1 activate
  	exit-address-family
 
 We now specify R1's address prefixes that we want to announce to our neighbors.
 
 	address-family ipv4
 	 neighbor 51.51.1.1 activate
-   **network 128.1.0.0**
+   network 128.1.0.0
 	exit-address-family
 	!
 	address-family ipv6
 	 neighbor 2100:5100:51:1::1 activate
-   **network 2001:1281::/44**
+   network 2001:1281::/44
   exit-address-family
 
 Now we are going to apply a simple policy to show how to configure it.  For this example we only want to allow the default route in for both IPv4 and IPv6.  To do this we are going to create prefix-lists and then apply them in the corresponding BGP address family.  In the initial configuration for R1, we have already defined the below two prefixes that we will be using for this example.
@@ -122,11 +119,11 @@ Now we are going to apply a simple policy to show how to configure it.  For this
 With these prefixes defined, we can now apply them within the respecive address family as shown below.
 
 	address-family ipv4
-	 **neighbor 51.51.1.1 prefix-list v4Default-Only in**
+	 neighbor 51.51.1.1 prefix-list v4Default-Only in
 	exit-address-family
 	!
 	address-family ipv6
-	 **neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in**
+	 neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in
 	exit-address-family
 
 Now when we put all of these steps together, we get a BGP configuration that looks like this.

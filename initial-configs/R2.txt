@@ -197,7 +197,6 @@ ip prefix-list v4ispBin seq 5 permit 0.0.0.0/0
 ip prefix-list v4ispBout description OUTBOUNDv4_FILTER_FOR_ispB
 ip prefix-list v4ispBout seq 5 permit 128.2.0.0/16
 ip prefix-list v4ispBout seq 10 permit 128.2.128.0/17
-ipv6 route 2001:1282::/44 Null0
 !
 !
 ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE

@@ -63,8 +63,6 @@ router bgp 64492
   neighbor 2100:5200:52:2::1 activate
   neighbor 2100:5200:52:2::1 soft-reconfiguration inbound
  exit-address-family
-
-ipv6 route 2001:1282::/44 Null0
 ```
 
 ## Safety First
@@ -185,3 +183,181 @@ show bgp ipv6 unicast
 Here is a screenshot to show the output of these commands on R2.
 
 ![CDS-2 Section 1: Egress Policy Verified](CDS-2_Section_1-06.png)
+
+
+# CDS-2 Section 2: BGP Active / Active
+
+Here we are going to show how to properly create a BGP Active / Active policy.
+
+Ingress Policy: Our goal for our ingress policy is to distribute the load evenly across both links.  To do this we are going to use more specific advertisements. For our example we have a /16 for IPv4 and a /44 for IPv6.  We are going to break these up into two smaller ranges. For IPv4 it will be two /17s. For IPv6 it will be two /45s.  Here are the ranges once divided up.
+
+IPv4 Summary Range: 128.2.0.0/16
+IPv4 First Range:   128.2.0.0/17
+IPv4 Second Range:  128.2.128.0/17
+
+IPv6 Summary Range: 2001:1282::/44
+IPv6 First Range:   2001:1282::/45
+IPv6 Second Range:  2001:1282:8::/45
+
+Now that we have the split ranges, we will advertise the first range (128.2.0.0/17 and 2001:1282::/45) out of ISP-A and then advertise the second range (128.2.128.0/17 and 2001:1282:8::/45) out of ISP-B to distribute our ingress load evenly. We also will want to make sure we still continue to advertise the summary ranges out of both providers incase of a provider failure.
+
+If you cannot split your addresses up, your options are limited. You can anycast advertise your network out to both providers but keep in mind this has unpredictable results. Finally, you can tweak with the AS-PATH configuration for your advertisement but then you are really doing an Active / standby deployment and not an Active / Active deployment.
+
+Egress Policy: Our goal for our egress policy is the same goal we had for our ingress policy, we want to distribute the load evenly across both links. We are going to use local-preference and more specifics to achieve this policy for us.
+
+From ISP-A, we are going to filter every other IPv4 /4 prefixes and install them.  For IPv6 we are going to install select prefixes only. We will also accept the default routes from ISP-A.
+
+From ISP-B, we are going to accept the default routes and increase their local-preference.
+
+NOTE: Before moving forward, make sure you have the initial configurations loaded for FW2, R2, BB1, BB2, ISP-A, and ISP-B. Remember, we are not making a ton of changes on BB1, BB2, ISP-A, or ISP-B, so if you have already loaded them you should be good to go.
+
+## Ingress Policy
+
+We should have the initial configurations loaded on R2 and FW2. On R2, we already have our basic BGP configuration running without any policies being applied.
+
+For our split ranges to work, we will need to add BGP network statements in the respective address families. For these network statements to work, there must be a route in the RIB for it. In some cases you may need to add a null0 static tragic route. Instead of doing that, we are going to add EIGRP summaries on FW2 that will be redistributed into BGP on R2.  We also will be filtering what prefixes we are sending to which ISP.
+
+Here is what we are adding on R2 for networks in BGP:
+
+```
+ip prefix-list IPv4_OUT_ISP-A description IPv4_OUT_ISP-A
+ip prefix-list IPv4_OUT_ISP-A seq 5 permit 128.2.0.0/16
+ip prefix-list IPv4_OUT_ISP-A seq 10 permit 128.2.0.0/17
+
+ip prefix-list IPv4_OUT_ISP-B description IPv4_OUT_ISP-B
+ip prefix-list IPv4_OUT_ISP-B seq 5 permit 128.2.0.0/16
+ip prefix-list IPv4_OUT_ISP-B seq 10 permit 128.2.128.0/17
+
+ipv6 prefix-list IPv6_OUT_ISP-A description IPv6_OUT_ISP-A
+ipv6 prefix-list IPv6_OUT_ISP-A seq 5 permit 2001:1282::/44
+ipv6 prefix-list IPv6_OUT_ISP-A seq 10 permit 2001:1282::/45
+
+ipv6 prefix-list IPv6_OUT_ISP-B description IPv6_OUT_ISP-B
+ipv6 prefix-list IPv6_OUT_ISP-B seq 5 permit 2001:1282::/44
+ipv6 prefix-list IPv6_OUT_ISP-B seq 10 permit 2001:1282:8::/45
+
+router bgp 64492
+ address-family ipv4
+  neighbor 51.51.2.1 prefix-list IPv4_OUT_ISP-A out
+  neighbor 52.52.2.1 prefix-list IPv4_OUT_ISP-B out
+  network 128.2.0.0 mask 255.255.128.0
+  network 128.2.128.0 mask 255.255.128.0
+ exit
+ address-family ipv6
+  neighbor 2100:5100:51:2::1 prefix-list IPv6_OUT_ISP-A out
+  neighbor 2100:5200:52:2::1 prefix-list IPv6_OUT_ISP-B out
+  network 2001:1282::/45
+  network 2001:1282:8::/45
+ exit
+```
+
+![CDS-2 Section 2: Ingress Policy Implementation on R2](CDS-2_Section_2-01.png)
+
+Here is what we are adding on FW2 for our summary routes in EIGRP.
+
+
+```
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface GigabitEthernet0/1
+   summary-address 128.2.0.0 255.255.128.0
+   summary-address 128.2.128.0 255.255.128.0
+   no passive-interface
+  exit-af-interface
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface GigabitEthernet0/1
+   summary-address 2001:1282::/45
+   summary-address 2001:1282:8::/45
+   no passive-interface
+  exit-af-interface
+  !
+ exit-address-family
+```
+
+![CDS-2 Section 2: Ingress Policy Implementation on FW2](CDS-2_Section_2-02.png)
+
+
+## Egress Policy
+
+For our IPv4 egress distribution to work we will need to receive the full internet BGP table from ISP-A on R2. From ISP-B we can filter down to the IPv4 default route.  On ISP-A we will create a prefix-list matching every other /4 and the default route, then inject these prefixes into BGP.  On ISP-B we will use a route-map to match the IPv4 default route, via a prefix-list, and then increase the local preference to 200.
+
+```
+ip prefix-list IPv4_IN_ISP-A description EVERY_OTHER_SLASH4
+ip prefix-list IPv4_IN_ISP-A seq 5 permit 0.0.0.0/0
+ip prefix-list IPv4_IN_ISP-A seq 10 permit 0.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 15 permit 32.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 20 permit 64.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 25 permit 96.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 30 permit 128.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 35 permit 160.0.0.0/4 le 24
+ip prefix-list IPv4_IN_ISP-A seq 40 permit 192.0.0.0/4 le 24
+
+ip prefix-list IPv4_IN_ISP-B description DEFAULT_IN_B
+ip prefix-list IPv4_IN_ISP-B seq 5 permit 0.0.0.0/0
+
+route-map IPv4_IN_ISP-A permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ISP-A
+ match ip address prefix-list IPv4_IN_ISP-A
+
+route-map IPv4_IN_ISP-B permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ISP-B
+ match ip address prefix-list IPv4_IN_ISP-B
+ set local-preference 200
+
+router bgp 64492
+ address-family ipv4
+  neighbor 51.51.2.1 route-map IPv4_IN_ISP-A in
+  neighbor 52.52.2.1 route-map IPv4_IN_ISP-B in
+ exit
+```
+
+Here is a screenshot showing the configuration of the IPv4 egress policy.
+
+![CDS-2 Section 2: IPv4 Egress Policy Implementation on R2](CDS-2_Section_2-03.png)
+
+Our IPv6 policy is similar to the IPv4 policy, the only difference is that we cannot easily breakup the IPv6 Internet ranges into neat /4s like we can with IPv4.  So we will have to create different IPv6 prefix-lists to match the first half and the second half of the IPv6 internet table.  Other than that, the policies are the same!  
+
+Here goes nothing! :)
+
+
+```
+ipv6 prefix-list IPv6_IN_ISP-A description FIRST_HALF_V6
+ipv6 prefix-list IPv6_IN_ISP-A seq 5 permit ::/0
+ipv6 prefix-list IPv6_IN_ISP-A seq 10 permit 2001::/18 le 32
+
+ipv6 prefix-list IPv6_IN_ISP-B description SECOND_HALF_V6
+ipv6 prefix-list IPv6_IN_ISP-B seq 5 permit 2001:4000::/20 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 10 permit 2001:8000::/22 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 15 permit 2002::/15 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 20 permit 2001:5000::/20 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 25 permit 2400::/6 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 30 permit 2800::/5 le 32
+
+route-map IPv6_IN_ISP-A permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ISP-A
+ match ip address prefix-list IPv6_IN_ISP-A
+
+route-map IPv6_IN_ISP-B permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ISP-B
+ match ip address prefix-list IPv6_IN_ISP-B
+ set local-preference 200
+
+router bgp 64492
+ address-family ipv6
+  neighbor 2100:5100:51:2::1 route-map IPv6_IN_ISP-A in
+  neighbor 2100:5200:52:2::1 prefix-list IPv6_IN_ISP-B in
+ exit
+```
+
+Here is a screenshot showing the configuration of the IPv6 egress policy.
+
+![CDS-2 Section 2: IPv6 Egress Policy Implementation on R2](CDS-2_Section_2-04.png)
+
+## Verification Time
+
+Now that we have our policy implemented, we need to verify it actually works as expected.

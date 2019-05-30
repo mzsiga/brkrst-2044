@@ -76,6 +76,10 @@ interface Loopback22
  ip virtual-reassembly in
  ipv6 address 2001:1282:0:22::22/128
 !
+interface Loopback128
+ ip address 128.2.128.2 255.255.255.255
+ ipv6 address 2001:1282:8:128::2/128
+!
 interface Loopback210
  ip address 10.2.128.2 255.255.255.255
  ip nat inside
@@ -141,6 +145,7 @@ router eigrp DUAL-STACK
   topology base
   exit-af-topology
   network 128.2.0.2 0.0.0.0
+  network 128.2.128.2 0.0.0.0
  exit-address-family
  !
  address-family ipv6 unicast autonomous-system 10
@@ -150,6 +155,7 @@ router eigrp DUAL-STACK
   exit-af-interface
   !
   af-interface GigabitEthernet0/1
+   summary-address 2001:1282::/44
    no passive-interface
   exit-af-interface
   !

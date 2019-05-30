@@ -2,9 +2,9 @@
 
 # My Contact information:
 > Email:    michael.zsiga@gmail.com\
-> Twitter:  https://twitter.com/michael_zsiga\
-> LinkedIn: https://www.linkedin.com/in/zigzag\
-> Website:  https://zigbits.tech\
+> Twitter:  https://twitter.com/michael_zsiga \
+> LinkedIn: https://www.linkedin.com/in/zigzag \
+> Website:  https://zigbits.tech \
 
 This is Common Deployment Scenario (CDS) # 1 from the Cisco Live presentation BRKRST-2044 - Enterprise Multi-Homed Internet Edge Architectures. CDS 1 highlights the single router, single ISP connection deployment example.  Within this page are the steps to properly configure static (tragic) routing connectivity (Section 1) and dual stack BGP (IPv4/IPv6) connectivity (Section 2) to the Internet (INET).
 
@@ -53,7 +53,7 @@ Now we must complete our verification and testing phase of our solution.  From a
 
 ![CDS-1  Section 1: Ingress Policy Verification](CDS-1_Section_1-04.png)
 
-Now that we validated our Ingress policy we need to validate our Egress policy from FW1. On FW1 we want to test connectivity to the Internet address 16.16.16.16 and 2000:16:16:16::16 respectively.
+Now that we validated our Ingress policy we need to validate our Egress policy from FW1. On FW1 we want to test connectivity to the Internet addresses 16.16.16.16 and 2000:16:16:16::16 respectively.
 
 ![CDS-1 Section 1: Egress Policy Verification](CDS-1_Section_1-06.png)
 
@@ -78,14 +78,14 @@ Below is a screenshot of these configurations being applied on R1.
 
 ![CDS-1 Section 2: R1's IP Addresses towards ISP-A](CDS-1_Section_2-01.png)
 
-##Won't you be my Neighbor?
+## Won't you be my Neighbor?
 
 Now that we have our IP addresses configured on R1 towards ISP-A, we need to configure R1's BGP neighbors with ISP-A. Our ASN for R1 is 64491.  When I am configuring BGP with multiple address families I prefer to disable the default IPv4 unicast address family with the command 'no bgp default ipv4-unicast' in the global BGP configuration. We configure neighbors under the BGP <ASN> process as shown below.
 
 	router bgp 64491
  	 no bgp log-neighbor-changes
  	 no bgp default ipv4-unicast
- 	 **neighbor 2100:5100:51:1::1 remote-as 64501**
+ 	 ** neighbor 2100:5100:51:1::1 remote-as 64501 **
  	 neighbor 2100:5100:51:1::1 description IPv6_eBGP_PEER_TO_ISP-A
  	 **neighbor 51.51.1.1 remote-as 64501**
  	 neighbor 51.51.1.1 description IPv4_eBGP_PEER_TO_ISP-A
@@ -172,7 +172,7 @@ Here is a screenshot showing these changes.
 
 ![CDS-1 Section 2: R1's Static "tragic" routes toward FW1](CDS-1_Section_2-03.png)
 
-##Verification Time
+## Verification Time
 
 Now that we have our policy implemented, we need to verify it actually works as expected. First we will want to verify our BGP Neighbors are actually active, then we will want to check we are receiving the default routes like we should.  Finally, we will want to test connectivity to hosts on the internet.
 

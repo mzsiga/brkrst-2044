@@ -69,14 +69,15 @@ Now that we have our initial configurations loaded on these devices, its time to
 
 To start with, we need to enable IPv6 unicast routing and then configure our interface towards ISP-A with IPv4 and IPv6 addresses. These are included in the initial configurations of R1 but are shown below for clarity.
 
-	```ipv6 unicast-routing
+```
+ipv6 unicast-routing
 
-	interface GigabitEthernet0/1
-	 description CONN_TO_ISP-A
-	 ip address 51.51.1.2 255.255.255.252
-	 ipv6 address 2100:5100:51:1::2/64
-	 no shutdown
-	 ```
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.1.2 255.255.255.252
+ ipv6 address 2100:5100:51:1::2/64
+ no shutdown
+```
 
 Below is a screenshot of these configurations being applied on R1.
 
@@ -87,22 +88,22 @@ Below is a screenshot of these configurations being applied on R1.
 Now that we have our IP addresses configured on R1 towards ISP-A, we need to configure R1's BGP neighbors with ISP-A. Our ASN for R1 is 64491.  When I am configuring BGP with multiple address families I prefer to disable the default IPv4 unicast address family with the command 'no bgp default ipv4-unicast' in the global BGP configuration. We configure neighbors under the BGP <ASN> process as shown below.
 
 ```
-	router bgp 64491
- 	 no bgp default ipv4-unicast
- 	 neighbor 2100:5100:51:1::1 remote-as 64501
- 	 neighbor 51.51.1.1 remote-as 64501
+router bgp 64491
+ no bgp default ipv4-unicast
+ neighbor 2100:5100:51:1::1 remote-as 64501
+ neighbor 51.51.1.1 remote-as 64501
 ```
 
 Then we activate each neighbor under the respective address family.
 
 ```
-	address-family ipv4
-   neighbor 51.51.1.1 activate
-	exit-address-family
- 	!
-	address-family ipv6
-	 neighbor 2100:5100:51:1::1 activate
- 	exit-address-family
+address-family ipv4
+ neighbor 51.51.1.1 activate
+exit-address-family
+!
+address-family ipv6
+ neighbor 2100:5100:51:1::1 activate
+exit-address-family
 ```
 
 We now specify R1's address prefixes that we want to announce to our neighbors.

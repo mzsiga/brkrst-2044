@@ -361,3 +361,6 @@ Here is a screenshot showing the configuration of the IPv6 egress policy.
 ## Verification Time
 
 Now that we have our policy implemented, we need to verify it actually works as expected.
+
+
+show bgp ipv4 unicast regexp 64492$ from BB1

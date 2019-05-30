@@ -85,7 +85,7 @@ Now that we have our IP addresses configured on R1 towards ISP-A, we need to con
 	router bgp 64491
  	 no bgp log-neighbor-changes
  	 no bgp default ipv4-unicast
- 	 ** neighbor 2100:5100:51:1::1 remote-as 64501 **
+ 	 **neighbor** 2100:5100:51:1::1 remote-as 64501
  	 neighbor 2100:5100:51:1::1 description IPv6_eBGP_PEER_TO_ISP-A
  	 **neighbor 51.51.1.1 remote-as 64501**
  	 neighbor 51.51.1.1 description IPv4_eBGP_PEER_TO_ISP-A

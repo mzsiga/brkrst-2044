@@ -22,15 +22,17 @@ Make sure you have the initial configurations loaded on R1, FW1, BB1, BB2, and I
 
 We need to add a static (tragic) default route for IPv4 and IPv6 on R1.
 
-	```ip route 0.0.0.0 0.0.0.0 51.51.1.1
-	ipv6 route ::/0 2100:5100:51:1::1
-	```
+```
+ip route 0.0.0.0 0.0.0.0 51.51.1.1
+ipv6 route ::/0 2100:5100:51:1::1
+```
 
 We also need to add static (tragic) routes for R1's networks that FW1 owns.
 
-	```ip route 128.1.0.0 255.255.0.0 128.1.0.2
-	ipv6 route 2001:1281::/44 2001:1281:1::2
-	```
+```
+ip route 128.1.0.0 255.255.0.0 128.1.0.2
+ipv6 route 2001:1281::/44 2001:1281:1::2
+```
 
 Below is a screenshot of these static tragic routes being configured on R1.
 
@@ -40,9 +42,10 @@ Because we are not running a dynamic solution between R1 and ISP-A, ISP-A doesn'
 
 On ISP-A we need to add these static tragic routes:
 
-	```ip route 128.1.0.0 255.255.0.0 51.51.1.2
-	ipv6 route 2001:1281::/44 2100:5100:51:1::2
-	```
+```
+ip route 128.1.0.0 255.255.0.0 51.51.1.2
+ipv6 route 2001:1281::/44 2100:5100:51:1::2
+```
 
 Here is a screenshot of these routes being configured on ISP-A:
 
@@ -109,59 +112,65 @@ exit-address-family
 We now specify R1's address prefixes that we want to announce to our neighbors.
 
 ```
-	address-family ipv4
-	 neighbor 51.51.1.1 activate
-   network 128.1.0.0
-	exit-address-family
-	!
-	address-family ipv6
-	 neighbor 2100:5100:51:1::1 activate
-   network 2001:1281::/44
-  exit-address-family
+address-family ipv4
+ neighbor 51.51.1.1 activate
+ network 128.1.0.0
+exit-address-family
+!
+address-family ipv6
+ neighbor 2100:5100:51:1::1 activate
+ network 2001:1281::/44
+exit-address-family
 ```
 
 Now we are going to apply a simple policy to show how to configure it.  For this example we only want to allow the default route in for both IPv4 and IPv6.  To do this we are going to create prefix-lists and then apply them in the corresponding BGP address family.  In the initial configuration for R1, we have already defined the below two prefixes that we will be using for this example.
 
-	ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
-	ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
-	ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
-	ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+```
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+```
 
 With these prefixes defined, we can now apply them within the respecive address family as shown below.
 
-	address-family ipv4
-	 neighbor 51.51.1.1 prefix-list v4Default-Only in
-	exit-address-family
-	!
-	address-family ipv6
-	 neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in
-	exit-address-family
+```
+address-family ipv4
+ neighbor 51.51.1.1 prefix-list v4Default-Only in
+exit-address-family
+!
+address-family ipv6
+ neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in
+exit-address-family
+```
 
 Now when we put all of these steps together, we get a BGP configuration that looks like this.
 
-	router bgp 64491
-   no bgp log-neighbor-changes
-   no bgp default ipv4-unicast
-   neighbor 2100:5100:51:1::1 remote-as 64501
-   neighbor 2100:5100:51:1::1 description IPv6_eBGP_PEER_TO_ISP-A
-   neighbor 51.51.1.1 remote-as 64501
-   neighbor 51.51.1.1 description IPv4_eBGP_PEER_TO_ISP-A
- 	!
- 	address-family ipv4
-   network 51.51.1.0 mask 255.255.255.252
-   network 128.1.0.0
-   neighbor 51.51.1.1 activate
-   neighbor 51.51.1.1 soft-reconfiguration inbound
-   neighbor 51.51.1.1 prefix-list v4Default-Only in
- 	exit-address-family
- 	!
- 	address-family ipv6
-   network 2001:1281::/44
-   network 2100:5100:51:1::/64
-   neighbor 2100:5100:51:1::1 activate
-   neighbor 2100:5100:51:1::1 soft-reconfiguration inbound
-   neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in
- 	exit-address-family
+```
+router bgp 64491
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5100:51:1::1 remote-as 64501
+ neighbor 2100:5100:51:1::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 51.51.1.1 remote-as 64501
+ neighbor 51.51.1.1 description IPv4_eBGP_PEER_TO_ISP-A
+ !
+ address-family ipv4
+  network 51.51.1.0 mask 255.255.255.252
+  network 128.1.0.0
+  neighbor 51.51.1.1 activate
+  neighbor 51.51.1.1 soft-reconfiguration inbound
+  neighbor 51.51.1.1 prefix-list v4Default-Only in
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1281::/44
+  network 2100:5100:51:1::/64
+  neighbor 2100:5100:51:1::1 activate
+  neighbor 2100:5100:51:1::1 soft-reconfiguration inbound
+  neighbor 2100:5100:51:1::1 prefix-list v6Default-Only in
+ exit-address-family
+```
 
 Here is a screenshot of this entire BGP configuration being applied on R1.
 
@@ -173,8 +182,10 @@ NOTE: I am not a fan of static "tragic" routes as I'm sure most of you can tell,
 
 We are going to add the following static routes to R1's configuration.
 
-	ip route 128.1.0.0 255.255.0.0 128.1.0.2
-	ipv6 route 2001:1281::/44 2001:1281:1::2
+```
+ip route 128.1.0.0 255.255.0.0 128.1.0.2
+ipv6 route 2001:1281::/44 2001:1281:1::2
+```
 
 Here is a screenshot showing these changes.
 
@@ -186,8 +197,10 @@ Now that we have our policy implemented, we need to verify it actually works as 
 
 To check our BGP neighbors we are going top use the commands "show bgp ipv4 unicast summary" and "show bgp ipv6 unicast summary".
 
-	show bgp ipv4 unicast summary
-	show bgp ipv6 unicast summary
+```
+show bgp ipv4 unicast summary
+show bgp ipv6 unicast summary
+```
 
 Here is a screenshot of what an active neighbor should look like.
 
@@ -195,27 +208,32 @@ Here is a screenshot of what an active neighbor should look like.
 
 Let's check to see if we are receiving the default routes like we should be. To do this we are going to use a similar command as in the last step: "show bgp ipv4 unicast" and "show bgp ipv6 unicast"
 
-	show bgp ipv4 unicast
-	show bgp ipv6 unicast
+```
+show bgp ipv4 unicast
+show bgp ipv6 unicast
+```
 
 ![CDS-1 Section 2: R1's BGP Defaults](CDS-1_Section_2-05.png)
 
 FW1 is our host in this example with different loopback addresses (loopback1 and loopback11) for IPv4 because the FW is running Network Address Translation (NAT), for IPv4 only.  When we ping from FW1, we are testing our egress policy.
 
-	ping 16.16.16.16 so lo1
-	ping 16.16.16.16 so lo11
+```
+ping 16.16.16.16 so lo1
+ping 16.16.16.16 so lo11
 
-	ping 2000:16:16:16::16
+ping 2000:16:16:16::16
+```
 
 Here is a screenshot showing our egress policy verification:
 
 ![CDS-1 Section 2: R1's Egress Verification](CDS-1_Section_2-06.png)
 
-
 Now if CDS-1 was hosting content, we would want to test connectivity from the internet. For our example FW1 is doing a static nat (IPv4 only) to simulate a hosted server within CDS-1. To test this ingress connectivity, we will ping this server from BB1.
 
- 	ping 128.1.11.11
-	ping 2001:1281:0:11::11
+```
+ping 128.1.11.11
+ping 2001:1281:0:11::11
+```
 
 Here is a screenshot showing our ingress policy verification:
 

@@ -91,10 +91,10 @@ Then we activate each neighbor under the respective address family.
 
 	address-family ipv4
    neighbor 51.51.1.1 activate
- 	exit-address-family
+	exit-address-family
  	!
- 	address-family ipv6
-   neighbor 2100:5100:51:1::1 activate
+	address-family ipv6
+	 neighbor 2100:5100:51:1::1 activate
  	exit-address-family
 
 We now specify R1's address prefixes that we want to announce to our neighbors.

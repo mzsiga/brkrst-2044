@@ -1,4 +1,4 @@
-# FW2's Initial configuration
+# CDS-2 Section 2: FW2's Final configuration
 
 version 15.6
 service timestamps debug datetime msec
@@ -136,6 +136,8 @@ router eigrp DUAL-STACK
   !
   af-interface GigabitEthernet0/1
    summary-address 128.2.0.0 255.255.0.0
+   summary-address 128.2.0.0 255.255.128.0
+   summary-address 128.2.128.0 255.255.128.0
    no passive-interface
   exit-af-interface
   !
@@ -153,6 +155,8 @@ router eigrp DUAL-STACK
   !
   af-interface GigabitEthernet0/1
    summary-address 2001:1282::/44
+   summary-address 2001:1282::/45
+   summary-address 2001:1282:8::/45
    no passive-interface
   exit-af-interface
   !

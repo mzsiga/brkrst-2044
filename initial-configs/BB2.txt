@@ -96,6 +96,10 @@ interface Loopback96
 interface Loopback160
  ip address 160.160.160.160 255.255.255.0
 !
+interface Loopback5000
+ no ip address
+ ipv6 address 2001:5000::1/20
+!
 interface GigabitEthernet0/0
  description NOT USED
  no ip address
@@ -162,6 +166,7 @@ router bgp 64500
  exit-address-family
  !
  address-family ipv6
+  network 2001:5000::/20
   network 2100:5000:1:2::/64
   network 2100:5000:2:2::2/128
   network 2100:5000:15:15::15/128

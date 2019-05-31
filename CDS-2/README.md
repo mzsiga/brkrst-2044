@@ -191,13 +191,13 @@ Here we are going to show how to properly create a BGP Active / Active policy.
 
 Ingress Policy: Our goal for our ingress policy is to distribute the load evenly across both links.  To do this we are going to use more specific advertisements. For our example we have a /16 for IPv4 and a /44 for IPv6.  We are going to break these up into two smaller ranges. For IPv4 it will be two /17s. For IPv6 it will be two /45s.  Here are the ranges once divided up.
 
-IPv4 Summary Range: 128.2.0.0/16
-IPv4 First Range:   128.2.0.0/17
-IPv4 Second Range:  128.2.128.0/17
+IPv4 Summary Range: 128.2.0.0/16\
+IPv4 First Range:   128.2.0.0/17\
+IPv4 Second Range:  128.2.128.0/17\
 
-IPv6 Summary Range: 2001:1282::/44
-IPv6 First Range:   2001:1282::/45
-IPv6 Second Range:  2001:1282:8::/45
+IPv6 Summary Range: 2001:1282::/44\
+IPv6 First Range:   2001:1282::/45\
+IPv6 Second Range:  2001:1282:8::/45\
 
 Now that we have the split ranges, we will advertise the first range (128.2.0.0/17 and 2001:1282::/45) out of ISP-A and then advertise the second range (128.2.128.0/17 and 2001:1282:8::/45) out of ISP-B to distribute our ingress load evenly. We also will want to make sure we still continue to advertise the summary ranges out of both providers incase of a provider failure.
 
@@ -331,26 +331,27 @@ ipv6 prefix-list IPv6_IN_ISP-A seq 5 permit ::/0
 ipv6 prefix-list IPv6_IN_ISP-A seq 10 permit 2001::/18 le 32
 
 ipv6 prefix-list IPv6_IN_ISP-B description SECOND_HALF_V6
-ipv6 prefix-list IPv6_IN_ISP-B seq 5 permit 2001:4000::/20 le 32
-ipv6 prefix-list IPv6_IN_ISP-B seq 10 permit 2001:8000::/22 le 32
-ipv6 prefix-list IPv6_IN_ISP-B seq 15 permit 2002::/15 le 32
-ipv6 prefix-list IPv6_IN_ISP-B seq 20 permit 2001:5000::/20 le 32
-ipv6 prefix-list IPv6_IN_ISP-B seq 25 permit 2400::/6 le 32
-ipv6 prefix-list IPv6_IN_ISP-B seq 30 permit 2800::/5 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 5 permit ::/0
+ipv6 prefix-list IPv6_IN_ISP-B seq 10 permit 2001:4000::/20 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 15 permit 2001:8000::/22 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 20 permit 2002::/15 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 25 permit 2001:5000::/20 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 30 permit 2400::/6 le 32
+ipv6 prefix-list IPv6_IN_ISP-B seq 35 permit 2800::/5 le 32
 
 route-map IPv6_IN_ISP-A permit 10
  description APPLY_TO_INBOUND_PREFIXES_FROM ISP-A
- match ip address prefix-list IPv6_IN_ISP-A
+ match ipv6 address prefix-list IPv6_IN_ISP-A
 
 route-map IPv6_IN_ISP-B permit 10
  description APPLY_TO_INBOUND_PREFIXES_FROM ISP-B
- match ip address prefix-list IPv6_IN_ISP-B
+ match ipv6 address prefix-list IPv6_IN_ISP-B
  set local-preference 200
 
 router bgp 64492
  address-family ipv6
   neighbor 2100:5100:51:2::1 route-map IPv6_IN_ISP-A in
-  neighbor 2100:5200:52:2::1 prefix-list IPv6_IN_ISP-B in
+  neighbor 2100:5200:52:2::1 route-map IPv6_IN_ISP-B in
  exit
 ```
 
@@ -362,5 +363,71 @@ Here is a screenshot showing the configuration of the IPv6 egress policy.
 
 Now that we have our policy implemented, we need to verify it actually works as expected.
 
+For our ingress policy we need to validate the internet is receiving CDS-2's networks with the correct next-hop and AS-PATH information. To do this we will leverage BB1 as our Router Server / Looking Glass. Below are the commands we will utilize to check our networks:
 
-show bgp ipv4 unicast regexp 64492$ from BB1
+```
+show bgp ipv4 unicast regexp 64492$
+show bgp ipv6 unicast regexp 64492$
+```
+
+Here is a screenshot showing our networks are in fact being learned like we wanted them too.
+
+![CDS-2 Section 2: Ingress Policy Verification](CDS-2_Section_2-05.png)
+
+Now we will use ping and traceroute to verify connectivity from the internet to our 'hosted' content.
+
+```
+ping 128.2.22.22
+ping 128.2.128.22
+ping 2001:1282:0:22::22
+ping 2001:1282:8:128::22
+
+traceroute 128.2.22.22
+traceroute 128.2.128.22
+traceroute 2001:1282:0:22::22
+traceroute 2001:1282:8:128::22
+
+```
+
+Here are screenshots showing connectivity and that our ingress traffic is traversing the correct path we defined in our policy.
+
+![CDS-2 Section 2: Ingress Policy Verification ping](CDS-2_Section_2-06.png)
+
+![CDS-2 Section 2: Ingress Policy Verification traceroute](CDS-2_Section_2-07.png)
+
+
+Now to verify our egress path, we need to verify the BGP table on R2.  Then we can check connectivty with ping and the correct path with traceroute.
+
+```
+show bgp ipv4 unicast
+
+ping 16.16.16.16
+ping 32.32.32.32
+
+traceroute 16.16.16.16
+traceroute 32.32.32.32
+
+show bgp ipv6 unicast
+
+ping 2001:1::1
+ping 2001:5000::1
+
+traceroute 2001:1::1
+traceroute 2001:5000::1
+```
+
+And here are the screenshots for proof!! :)
+
+![CDS-2 Section 2: Egress Policy Verification IPv4 BGP](CDS-2_Section_2-08.png)
+
+![CDS-2 Section 2: Egress Policy Verification IPv4 ping](CDS-2_Section_2-09.png)
+
+![CDS-2 Section 2: Egress Policy Verification IPv6 BGP](CDS-2_Section_2-10.png)
+
+![CDS-2 Section 2: Egress Policy Verification IPv6 ping](CDS-2_Section_2-11.png)
+
+# Thats a wrap for CDS-2
+
+The final configurations files for CDS-2 Section 1 are located under /final-configs/CDS-2_Section_1
+
+The final configurations files for CDS-2 Section 2 are located under /final-configs/CDS-2_Section_2

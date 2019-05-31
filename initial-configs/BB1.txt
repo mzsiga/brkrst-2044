@@ -97,6 +97,10 @@ interface Loopback32
 interface Loopback64
  ip address 64.64.64.64 255.255.255.0
 !
+interface Loopback2001
+ no ip address
+ ipv6 address 2001:1::1/32
+!
 interface GigabitEthernet0/0
  description NOT USED
  no ip address
@@ -164,6 +168,7 @@ router bgp 64500
  !
  address-family ipv6
   network 2000:16:16:16::16/128
+  network 2001:1::/32
   network 2100:5000:1:1::1/128
   network 2100:5000:1:2::/64
   network 2100:5000:10:10::10/128

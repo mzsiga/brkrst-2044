@@ -193,11 +193,11 @@ Ingress Policy: Our goal for our ingress policy is to distribute the load evenly
 
 IPv4 Summary Range: 128.2.0.0/16\
 IPv4 First Range:   128.2.0.0/17\
-IPv4 Second Range:  128.2.128.0/17\
+IPv4 Second Range:  128.2.128.0/17
 
 IPv6 Summary Range: 2001:1282::/44\
 IPv6 First Range:   2001:1282::/45\
-IPv6 Second Range:  2001:1282:8::/45\
+IPv6 Second Range:  2001:1282:8::/45
 
 Now that we have the split ranges, we will advertise the first range (128.2.0.0/17 and 2001:1282::/45) out of ISP-A and then advertise the second range (128.2.128.0/17 and 2001:1282:8::/45) out of ISP-B to distribute our ingress load evenly. We also will want to make sure we still continue to advertise the summary ranges out of both providers incase of a provider failure.
 

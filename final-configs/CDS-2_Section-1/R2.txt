@@ -1,0 +1,266 @@
+# CDS-2 Section 1: R2's Final configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.2.2.2 255.255.255.255
+ ipv6 address 2001:1282:0:2::2/128
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:2::2/64
+!
+interface GigabitEthernet0/2
+ description CONN_TO_ISP-B
+ ip address 52.52.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:2::2/64
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW2
+ ip address 128.2.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1282:2::1/64
+!
+!
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+   redistribute bgp 64492 metric 10000 10 255 1 1500 route-map IPv4_BGP->EIGRP
+  exit-af-topology
+  network 128.2.0.1 0.0.0.0
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+   redistribute bgp 64492 metric 10000 10 255 1 1500 route-map IPv6_BGP->EIGRP
+  exit-af-topology
+ exit-address-family
+!
+router bgp 64492
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5100:51:2::1 remote-as 64501
+ neighbor 2100:5100:51:2::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 2100:5200:52:2::1 remote-as 64502
+ neighbor 2100:5200:52:2::1 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 51.51.2.1 remote-as 64501
+ neighbor 51.51.2.1 description IPv4_eBGP_PEER_TO_ISP-A
+ neighbor 52.52.2.1 remote-as 64502
+ neighbor 52.52.2.1 description IPv4_eBGP_PEER_TO_ISP-B
+ !
+ address-family ipv4
+  network 51.51.2.0 mask 255.255.255.252
+  network 52.52.2.0 mask 255.255.255.252
+  network 128.2.0.0
+  neighbor 51.51.2.1 activate
+  neighbor 51.51.2.1 soft-reconfiguration inbound
+  neighbor 51.51.2.1 prefix-list v4Default-Only in
+  neighbor 51.51.2.1 route-map IN-IspA in
+  neighbor 51.51.2.1 filter-list 1 out
+  neighbor 52.52.2.1 activate
+  neighbor 52.52.2.1 soft-reconfiguration inbound
+  neighbor 52.52.2.1 prefix-list v4Default-Only in
+  neighbor 52.52.2.1 route-map OUT-IspB out
+  neighbor 52.52.2.1 filter-list 1 out
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1282::/44
+  network 2100:5100:51:2::/64
+  network 2100:5200:52:2::/64
+  neighbor 2100:5100:51:2::1 activate
+  neighbor 2100:5100:51:2::1 soft-reconfiguration inbound
+  neighbor 2100:5100:51:2::1 prefix-list v6Default-Only in
+  neighbor 2100:5100:51:2::1 route-map IN-IspA in
+  neighbor 2100:5100:51:2::1 filter-list 1 out
+  neighbor 2100:5200:52:2::1 activate
+  neighbor 2100:5200:52:2::1 soft-reconfiguration inbound
+  neighbor 2100:5200:52:2::1 prefix-list v6Default-Only in
+  neighbor 2100:5200:52:2::1 route-map OUT-IspB out
+  neighbor 2100:5200:52:2::1 filter-list 1 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+ip prefix-list v4ispAin description EVERY_OTHER_SLASH4
+ip prefix-list v4ispAin seq 5 permit 0.0.0.0/0
+ip prefix-list v4ispAin seq 10 permit 0.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 15 permit 32.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 20 permit 64.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 25 permit 96.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 30 permit 128.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 35 permit 160.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 40 permit 192.0.0.0/4 le 24
+!
+ip prefix-list v4ispAout description OUTBOUNDv4_FILTER_FOR_ispA
+ip prefix-list v4ispAout seq 5 permit 128.2.0.0/16
+ip prefix-list v4ispAout seq 10 permit 128.2.0.0/17
+!
+ip prefix-list v4ispBin description DEFAULT_IN_B
+ip prefix-list v4ispBin seq 5 permit 0.0.0.0/0
+!
+ip prefix-list v4ispBout description OUTBOUNDv4_FILTER_FOR_ispB
+ip prefix-list v4ispBout seq 5 permit 128.2.0.0/16
+ip prefix-list v4ispBout seq 10 permit 128.2.128.0/17
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+!
+ipv6 prefix-list v6ispAin description FIRST_HALF_V6
+ipv6 prefix-list v6ispAin seq 5 permit ::/0
+ipv6 prefix-list v6ispAin seq 10 permit 2001::/18 le 32
+!
+ipv6 prefix-list v6ispBin description SECOND_HALF_V6
+ipv6 prefix-list v6ispBin seq 5 permit 2001:4000::/20 le 32
+ipv6 prefix-list v6ispBin seq 10 permit 2001:8000::/22 le 32
+ipv6 prefix-list v6ispBin seq 15 permit 2002::/15 le 32
+ipv6 prefix-list v6ispBin seq 20 permit 2001:5000::/20 le 32
+ipv6 prefix-list v6ispBin seq 25 permit 2400::/6 le 32
+ipv6 prefix-list v6ispBin seq 30 permit 2800::/5 le 32
+route-map IN-ispA permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ispA
+ match ip address prefix-list v4ispAin
+!
+route-map IN-ispB permit 10
+ match ip address prefix-list v4ispBin
+ set local-preference 200
+!
+route-map IPv6_BGP->EIGRP permit 10
+ match ipv6 address prefix-list v6Default-Only
+!
+route-map IPv4_BGP->EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+route-map IN-IspA permit 10
+ set local-preference 200
+!
+route-map OUT-IspB permit 10
+ set as-path prepend 64492 64492 64492 64492
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+no scheduler allocate
+!
+end

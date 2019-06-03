@@ -1,6 +1,6 @@
 # CDS-1 Instructions
 
-## My Contact information:
+My Contact information:
 > Email:    michael.zsiga@gmail.com\
 > Twitter:  https://twitter.com/michael_zsiga \
 > LinkedIn: https://www.linkedin.com/in/zigzag \

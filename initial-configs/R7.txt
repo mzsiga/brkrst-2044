@@ -1,0 +1,168 @@
+# R7's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R7
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$VDOX$xnAPaI208xqNUt8HPVosY0
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.4.127.254 255.255.255.255
+ ipv6 address 2001:1284:4:127::254/128
+!
+interface Loopback7
+ no ip address
+ ipv6 address 2001:1284:0:7::7/128
+ ipv6 eigrp 100
+!
+interface Loopback44
+ ip address 10.4.44.44 255.255.255.255
+ ipv6 address 2001:1284:0:44::44/128
+ ipv6 eigrp 100
+!
+interface Loopback77
+ no ip address
+ ipv6 address 2001:1284:0:77::77/128
+ ipv6 eigrp 100
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_FW4
+ ip address 10.4.0.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:17::7/64
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R8
+ ip address 10.4.5.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:78::7/64
+ ipv6 eigrp 100
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp 10
+ network 10.4.5.1 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/2
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/2
+!
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP->EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv6_EIGRP->BGP permit 10
+ set metric-type internal
+!
+route-map IPv4_BGP->EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

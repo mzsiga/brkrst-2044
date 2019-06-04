@@ -1,0 +1,169 @@
+# R5's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R5
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$xZd/$YH2520W/JR/MCq7RGy3zM.
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.5.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:5::2/64
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R6
+ ip address 192.168.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:56::5/64
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW4
+ ip address 128.4.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:51::5/64
+!
+router bgp 64494
+ bgp router-id 128.4.4.4
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2001:1284:4:56::6 remote-as 64494
+ neighbor 2001:1284:4:56::6 description IPv6_iBGP_PEER_TO_R6
+ neighbor 2100:5100:51:5::1 remote-as 64501
+ neighbor 2100:5100:51:5::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 51.51.5.1 remote-as 64501
+ neighbor 51.51.5.1 description IPv4_eBGP_PEER_TO_ISP-A
+ neighbor 192.168.0.2 remote-as 64494
+ neighbor 192.168.0.2 description IPv4_iBGP_PEER_TO_R6
+ !
+ address-family ipv4
+  network 51.51.5.0 mask 255.255.255.252
+  network 128.4.0.0
+  network 128.4.4.4 mask 255.255.255.255
+  neighbor 51.51.5.1 activate
+  neighbor 51.51.5.1 soft-reconfiguration inbound
+  neighbor 192.168.0.2 activate
+  neighbor 192.168.0.2 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1284:4:51::/64
+  network 2001:1284:4:56::/64
+  network 2100:5100:51:5::/64
+  neighbor 2001:1284:4:56::6 activate
+  neighbor 2001:1284:4:56::6 next-hop-self
+  neighbor 2100:5100:51:5::1 activate
+  neighbor 2100:5100:51:5::1 soft-reconfiguration inbound
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list IPv4_LOCAL_ROUTES description LOCAL_SUBNETS_OUT
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.4.0.0/17
+ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.4.0.0/16
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list IPv6_LOCAL_ROUTES description IPv6_LOCAL_SUBNETS_OUT
+ipv6 prefix-list IPv6_LOCAL_ROUTES seq 5 permit 2001:1284::/44
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

@@ -36,8 +36,8 @@ router bgp 64494
   neighbor 128.4.127.254 prefix-list v4Default-Only out
 ```
 
-Remove Private ASNs from AS-PATH
-Egress Policy: Only allow default
+Remove Private ASNs from AS-PATH\
+Egress Policy: Only allow default\
 Ingress Policy: Advertise our Local subnets
 ```
 router bgp 64494

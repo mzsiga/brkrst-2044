@@ -1,0 +1,108 @@
+# CDS-3 Section 2: SW1's Final configuration
+
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+username cisco privilege 15 secret 5 $1$K1v2$829WDHvEBl2EzvZUr2Fqf1
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R3
+ switchport access vlan 100
+ switchport mode access
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R4
+ switchport access vlan 100
+ switchport mode access
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW3
+ switchport access vlan 100
+ switchport mode access
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no switchport
+ no ip address
+ shutdown
+ negotiation auto
+!
+ip forward-protocol nd
+!
+ip http server
+no ip http secure-server
+!
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+route-map IPv6_STATIC->EIGRP permit 10
+ match tag 100
+!
+route-map IPv4_STATIC->EIGRP permit 10
+ match tag 10
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+!
+end

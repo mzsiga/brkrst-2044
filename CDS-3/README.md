@@ -346,18 +346,213 @@ Below are screenshots showing our successful verification for our Egress and Ing
 
 # CDS-3 Section 3: Intermediate Equal-Cost Multipath (ECMP) on L3 Switch
 
-- Configure IP address between edge routers, FW, and Switch
-    - 128.3.0.0/30: SW1 - R3
-    - 128.3.0.8/30: SW1 - R4
-    - 128.3.0.12/30: SW1 - FW3
+For this section, we once again lose administrative control over the Firewall, FW3.  Now the security team owns and manages the firewall.  Because we are not fans of static tragic routes, we decide to upgrade our layer 2 switch to a layer 3 switch and run an IGP between our edge routers, R3 and R4, and our newly upgrade layer 3 switch, SW1.  Of course on FW3, there will need to be some nasty default static tragic routes that our security team will need to add.
 
-    - 2001:1283:3::/64 R3 - SW1
-    - 2001:1283:4::/64 R4 - SW1
-    - 2001:1283:5::/64 SW1 - FW3
+Our initial configurations once again setup an Active / Active BGP configuration with R3 and R4 connecting to ISP-A and ISP-B respectively.  Our current BGP policies are only advertising our networks outbound and only allowing the default route in.  Of course you can tweak these if you would like to replicate anything in CDS-1, CDS-2, and what you have seen so far in CDS-3.  We are going to keep with our Active / Active configuration.  
 
- - Configure IGP between Edge Routers and SW
- - Inject Default routes from BGP into IGP
- - Make sure FW has a default route out to the SW
- - Add Static routes on SW1, redistribute them into IGP
+Our first task is to configure our IP addresses and subnets between R3, R4, SW1, and FW3.  This section is going to be different than CDS-3 section 1 and 2 because now our SW1 is routing and is no longer a layer 2 switch to get to FW3.  Because of this, we are going to use different IPv4 /30 and IPv6 /64 networks as mock point to point networks.  Here is how they are going to be configured.
 
- - Verify Connectivity
+- 128.3.0.0/30:
+ - R3:  .1
+ - SW1: .2
+- 128.3.0.8/30:
+ - R4:  .9
+ - SW1: .10
+- 128.3.0.12/30:
+ - SW1: .13
+ - FW3: .14
+
+- 2001:1283:3::/64
+ - R3:  ::1
+ - SW1: ::2
+- 2001:1283:4::/64
+ - R4:  ::1
+ - SW1: ::2
+- 2001:1283:5::/64
+ - SW1: ::1
+ - FW3: ::2
+
+```
+R3:
+interface GigabitEthernet0/3
+ ip address 128.3.0.1 255.255.255.252
+ ipv6 address 2001:1283:3::1/64
+
+R4:
+interface GigabitEthernet0/3
+ ip address 128.3.0.9 255.255.255.252
+ ipv6 address 2001:1283:4::1/64
+
+FW3:
+interface GigabitEthernet0/1
+ ip address 128.3.0.14 255.255.255.252
+ ipv6 address 2001:1283:5::2/64
+
+SW1:
+interface GigabitEthernet0/1
+ no switchport
+ ip address 128.3.0.2 255.255.255.252
+ ipv6 address 2001:1283:3::2/64
+
+interface GigabitEthernet0/2
+ no switchport
+ ip address 128.3.0.10 255.255.255.252
+ ipv6 address 2001:1283:4::2/64
+
+interface GigabitEthernet0/3
+ no switchport
+ ip address 128.3.0.13 255.255.255.252
+ ipv6 address 2001:1283:5::1/64
+```
+
+Now we need to configure our IGP and we will use EIGRP again here.
+
+```
+R3:
+router eigrp 10
+ network 128.3.0.1 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/3
+ eigrp router-id 128.3.3.3
+
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/3
+
+interface GigabitEthernet0/3
+ ipv6 eigrp 100
+
+R4:
+router eigrp 10
+ network 128.3.0.9 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/3
+ eigrp router-id 128.3.4.4
+
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/3
+
+interface GigabitEthernet0/3
+ ipv6 eigrp 100
+
+SW1:
+router eigrp 10
+ network 128.3.0.2 0.0.0.0
+ network 128.3.0.10 0.0.0.0
+ network 128.3.0.13 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+ no passive-interface GigabitEthernet0/2
+
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+ no passive-interface GigabitEthernet0/2
+
+interface GigabitEthernet0/1
+ ipv6 eigrp 100
+
+interface GigabitEthernet0/2
+ ipv6 eigrp 100
+```
+
+Here are screenshots showing EIGRP being configured on R3, R4, and SW1:
+
+![CDS-3 Section 3: R3 EIGRP Configuration ](CDS-3_Section_3-01.png)
+
+![CDS-3 Section 3: R4 EIGRP Configuration ](CDS-3_Section_3-02.png)
+
+![CDS-3 Section 3: SW1 EIGRP Configuration ](CDS-3_Section_3-03.png)
+
+Our next task is to get the default routes from R3's and R4's BGP table into EIGRP. To accomplish this we are just going to do the same redistribution with the same prefix-lists and route-maps from section 2 above.  Here they all are for reference.
+
+```
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+
+route-map IPv6_BGP->EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+route-map IPv4_BGP->EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+```
+
+These prefix-lists and route-maps are already pre-configured on the devices.
+
+Now all we need to do is add the corresponding redistribution statement in our EIGRP processes.
+
+```
+router eigrp 10
+ redistribute bgp 64493 metric 100 1000 1 255 1500 route-map IPv4_BGP->EIGRP
+
+ipv6 router eigrp 100
+ redistribute bgp 64493 metric 100 1000 1 255 1500 route-map IPv6_BGP->EIGRP
+```
+
+No screenshots this team as they are the same as in section 2.  Make sure to check your EIGRP topology tables for the default routes with the below commands:
+
+```
+show ip ei top
+show ipv6 ei top
+```
+
+The final step for our Egress policy is to make sure the security team puts the following default static tragic routes on FW3:
+
+```
+ip route 0.0.0.0 0.0.0.0 128.3.0.13
+ipv6 route ::/0 2001:1283:5::1
+```
+![CDS-3 Section 3: FW3 Default static tragic routes](CDS-3_Section_3-04.png)
+
+Thats it for our Egress policy, now to finish our Ingress policy. In section 2 we advertised our networks from FW3 but in this section we do not have admin control over FW3.  FW3 still owns these networks, so we sadly are going to have to add static tragic routes for these networks on SW1 pointing to FW3's outside interface.  We then are going to inject these static routes in EIGRP.  To make this a little easier, we are going to create route-maps that match on a tag value, 10 for IPv4 and 100 for IPv6.  Below are the route-maps, the static routes, and the EIGRP redistribution statement:
+
+```
+route-map IPv6_STATIC->EIGRP permit 10
+ match tag 100
+route-map IPv4_STATIC->EIGRP permit 10
+ match tag 10
+
+ip route 128.3.0.0 255.255.0.0 128.3.0.14 tag 10
+ip route 128.3.0.0 255.255.128.0 128.3.0.14 tag 10
+ip route 128.3.128.0 255.255.128.0 128.3.0.14 tag 10
+
+ipv6 route 2001:1283::/44 2001:1283:5::2 tag 100
+
+router eigrp 10
+ redistribute static metric 10000 10 255 1 1500 route-map IPv4_STATIC->EIGRP
+
+ipv6 router eigrp 100
+ redistribute static metric 10000 10 255 1 1500 route-map IPv6_STATIC->EIGRP
+
+```
+
+And here are screenshots with the final ingress policy configurations on SW1:
+
+![CDS-3 Section 3: SW1's Ingress policy changes](CDS-3_Section_3-05.png)
+
+## Verification
+
+Verification time!!  We are going to use ping to verify we have the proper connectivity we should have. From our FW3 we are going to ping the external addresses 16.16.16.16 and 2000:16:16:16::16. For IPv4 we are going to source our pings from Loopback3 because we are NATing on our Firewall. Then from BB1 we are going to ping our own addresses of 128.3.33.33 and 2001:1283:0:33::33.
+
+```
+ping 16.16.16.16 so lo3
+ping 2000:16:16:16::16
+
+ping 128.3.33.33
+ping 2001:1283:0:33::33
+```
+Below are screenshots showing our successful verification for our Egress and Ingress connectivity.
+
+![CDS-3 Section 3: Egress policy verification](CDS-3_Section_3-06.png)
+
+![CDS-3 Section 3: Ingress policy verification](CDS-3_Section_3-07.png)
+
+# Thats a wrap for CDS-3
+
+The final configurations files for CDS-3 Section 1 are located under /final-configs/CDS-3_Section_1
+
+The final configurations files for CDS-3 Section 2 are located under /final-configs/CDS-3_Section_2
+
+The final configurations files for CDS-3 Section 3 are located under /final-configs/CDS-3_Section_3

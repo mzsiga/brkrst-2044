@@ -23,7 +23,7 @@ NOTE: Make sure you have the initial configurations loaded for R3, R4, SW1, and 
 
 # CDS-3 Section 1: Firewall and First Hop Redundancy Protocol
 
-For our policy in this CDS, we are going to build an Active / Active configuration.  The Edge Routers R3 and R4 already have BGP configured and their corresponding ISP connections are running.  There are no policies applied to these ISP connections.  For this section, our edge routers are going to be running Hot Standby Router Protocol (HSRP) for both IPv4 and IPv6. SW1 is going to be acting as a layer 2 switch (think of a stackable switch). Our firewall, FW3, will be utilizing static tragic default routes to the two different HSRP Groups we are going to configure.
+For our policy in this CDS, we are going to build an Active / Active configuration.  The Edge Routers R3 and R4 already have BGP configured and their corresponding ISP connections are running. From a policy perspective we are allowing CDS-3 networks outbound and then allowing the default routes in. For this section, our edge routers are going to be running Hot Standby Router Protocol (HSRP) for both IPv4 and IPv6. SW1 is going to be acting as a layer 2 switch (think of a stackable switch). Our firewall, FW3, will be utilizing static tragic default routes to the two different HSRP Groups we are going to configure.
 
 Our first task here is to configure our shared subnet between R3, R4, SW1, and FW3.  For this section, our shared subnet will be 128.3.1.0/24 and 2001:1283::/64 for IPv4 and IPv6 respectively.  Here is the breakdown of what each IP address will be used for:
 
@@ -204,7 +204,7 @@ interface range g0/1-3
 
 ```
 
-Our next step is to configure our IGP, in this case we are going to do EIGRP and we are going to configure IPv4 and IPv6 separately (Not EIGRP NAMED).
+Our next step is to configure our IGP, in this case we are going to do EIGRP and we are going to configure IPv4 and IPv6 separately.
 
 ```
 R3:
@@ -353,24 +353,24 @@ Our initial configurations once again setup an Active / Active BGP configuration
 Our first task is to configure our IP addresses and subnets between R3, R4, SW1, and FW3.  This section is going to be different than CDS-3 section 1 and 2 because now our SW1 is routing and is no longer a layer 2 switch to get to FW3.  Because of this, we are going to use different IPv4 /30 and IPv6 /64 networks as mock point to point networks.  Here is how they are going to be configured.
 
 - 128.3.0.0/30:
- - R3:  .1
- - SW1: .2
+  - R3:  .1
+  - SW1: .2
 - 128.3.0.8/30:
- - R4:  .9
- - SW1: .10
+  - R4:  .9
+  - SW1: .10
 - 128.3.0.12/30:
- - SW1: .13
- - FW3: .14
+  - SW1: .13
+  - FW3: .14
 
 - 2001:1283:3::/64
- - R3:  ::1
- - SW1: ::2
+  - R3:  ::1
+  - SW1: ::2
 - 2001:1283:4::/64
- - R4:  ::1
- - SW1: ::2
+  - R4:  ::1
+  - SW1: ::2
 - 2001:1283:5::/64
- - SW1: ::1
- - FW3: ::2
+  - SW1: ::1
+  - FW3: ::2
 
 ```
 R3:

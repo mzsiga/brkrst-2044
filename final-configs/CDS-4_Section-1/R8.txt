@@ -1,0 +1,185 @@
+# CDS-4 Section 1: R8's Final configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R8
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$ov75$T75fr/UPpOgLHejWBScLS/
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.4.255.254 255.255.255.255
+ ipv6 address 2001:1284:4:255::254/128
+!
+interface Loopback8
+ no ip address
+ ipv6 address 2001:1284:0:8::8/128
+ ipv6 eigrp 100
+!
+interface Loopback44
+ ip address 10.4.128.44 255.255.255.255
+ ipv6 address 2001:1284:0:128::44/128
+ ipv6 eigrp 100
+!
+interface Loopback88
+ no ip address
+ ipv6 address 2001:1284:0:88::88/128
+ ipv6 eigrp 100
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_To_R7
+ ip address 10.4.5.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:78::8/64
+ ipv6 eigrp 100
+!
+interface GigabitEthernet0/2
+ description CONN_TO_FW5
+ ip address 10.4.128.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:28::8/64
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp 10
+ network 10.4.5.2 0.0.0.0
+ redistribute bgp 65534 metric 10000 0 255 1 1500 route-map IPv4_BGP->EIGRP
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+!
+router bgp 65534
+ bgp router-id 128.4.255.254
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 128.4.128.1 remote-as 64494
+ neighbor 128.4.128.1 description IPv4_eBGP_PEER_TO_R6
+ neighbor 128.4.128.1 ebgp-multihop 255
+ neighbor 128.4.128.1 update-source Loopback0
+ !
+ address-family ipv4
+  network 128.4.128.0 mask 255.255.128.0
+  neighbor 128.4.128.1 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 128.4.128.0 255.255.128.0 Null0
+ip route 128.4.128.0 255.255.255.252 10.4.128.1
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+!
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP->EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv6_EIGRP->BGP permit 10
+ set metric-type internal
+!
+route-map IPv4_BGP->EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

@@ -35,7 +35,8 @@ no ip icmp rate-limit unreachable
 !
 no ip domain lookup
 ip cef
-no ipv6 cef
+ipv6 unicast-routing 
+ipv6 cef
 !
 multilink bundle-name authenticated
 !

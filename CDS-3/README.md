@@ -71,7 +71,7 @@ interface range g0/1-3
 
 ```
 
-Now that we have our little network configured here, we need to configure HSRP.  Here is how we are going to configure HSRP with two groups on both R3 and R4.
+Now that we have our little network configured here, we need to configure HSRP.  Here is how we are going to configure HSRP with four groups (two per address family) on both R3 and R4.
 
 ```
 R3:
@@ -117,7 +117,7 @@ Here is a screenshot of these show commands on R3:
 
 ![CDS-3 Section 1: HSRP Verification](CDS-3_Section_1-01.png)
 
-Configure static routes on each edge router, R3 and R4, pointing back to FW.
+Configure static routes on each edge router, R3 and R4, pointing back to FW4.
 
 ```
 ip route 128.3.0.0 255.255.0.0 128.3.1.5

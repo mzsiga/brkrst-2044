@@ -15,21 +15,17 @@ Please reference this diagram when reviewing this Cisco Live session.
 ## CDS 1
 This folder contains the instructions and steps for Common Deployment Scenario 1: One Router with One ISP Link.
 
-lab demo basic configurations. These files do not include the internet peering / connection configurations. This is for you to fully configure all internet peerings as you prefer or you can follow the associated scenario guides. See the README.md file in that folder for details.
-
-
 ## CDS 2
+This folder contains the instructions and steps for Common Deployment Scenario 2: One Router with Dual ISP Links.
 
 ## CDS 3
+This folder contains the instructions and steps for Common Deployment Scenario 3: Two Router with Two ISP Links.
 
 ## CDS 4
-
-
+This folder contains the instructions and steps for Common Deployment Scenario 4: Multiple Routers, Multiple links, and Multiple Sites
 
 ## initial-configs
-This folder contains the initial lab demo basic configurations. These files do not include the internet peering / connection configurations. This is for you to fully configure all internet peerings as you prefer or you can follow the associated scenario guides. See the README.md file in that folder for details.
+This folder contains the initial lab demo basic configurations. Load these into your topology to following along with the different CDS Scenarios.
 
 ## final-configs
-This folder contains the lab demo configurations with all internet peering configured and operational. You can use these as a reference as you complete the different scenarios. See the README.md file in that folder for details.
-
-
+This folder contains the final working configuration for each CDS Section. You can use these as a reference as you complete the different CDS scenarios.

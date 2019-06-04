@@ -232,7 +232,7 @@ Here are screenshots showing these configurations on R7 and R8.
 
 Now its time to verify everything!! We are going to utilize ping and traceroute to assist us in our verification.
 
-West Cost Server: 128.4.44.44 (10.4.44.44)
+West Cost Server: 128.4.44.44 (10.4.44.44)\
 East Cost Server: 128.4.128.44 (10.4.128.44)
 
 Internet Web Server: 16.16.16.16

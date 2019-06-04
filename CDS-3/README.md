@@ -491,7 +491,7 @@ ipv6 router eigrp 100
  redistribute bgp 64493 metric 100 1000 1 255 1500 route-map IPv6_BGP->EIGRP
 ```
 
-No screenshots this team as they are the same as in section 2.  Make sure to check your EIGRP topology tables for the default routes with the below commands:
+No screenshots this time as they are the same as in section 2.  Make sure to check your EIGRP topology tables for the default routes with the below commands:
 
 ```
 show ip ei top
@@ -506,7 +506,7 @@ ipv6 route ::/0 2001:1283:5::1
 ```
 ![CDS-3 Section 3: FW3 Default static tragic routes](CDS-3_Section_3-04.png)
 
-Thats it for our Egress policy, now to finish our Ingress policy. In section 2 we advertised our networks from FW3 but in this section we do not have admin control over FW3.  FW3 still owns these networks, so we sadly are going to have to add static tragic routes for these networks on SW1 pointing to FW3's outside interface.  We then are going to inject these static routes in EIGRP.  To make this a little easier, we are going to create route-maps that match on a tag value, 10 for IPv4 and 100 for IPv6.  Below are the route-maps, the static routes, and the EIGRP redistribution statement:
+Thats it for our Egress policy, now to finish our Ingress policy. In section 2 we advertised our networks from FW3 but in this section we do not have admin control over FW3.  FW3 still owns these networks, so we sadly are going to have to add static tragic routes for these networks on SW1 pointing to FW3's outside interface.  We then are going to inject these static routes into EIGRP.  To make this a little easier, we are going to create route-maps that match on a tag value, 10 for IPv4 and 100 for IPv6.  Below are the route-maps, the static routes, and the EIGRP redistribution statement:
 
 ```
 route-map IPv6_STATIC->EIGRP permit 10

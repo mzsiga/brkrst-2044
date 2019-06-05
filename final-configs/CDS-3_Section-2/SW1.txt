@@ -54,6 +54,7 @@ interface GigabitEthernet0/1
  switchport mode access
  media-type rj45
  negotiation auto
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R4
@@ -61,6 +62,7 @@ interface GigabitEthernet0/2
  switchport mode access
  media-type rj45
  negotiation auto
+ no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_FW3
@@ -68,6 +70,7 @@ interface GigabitEthernet0/3
  switchport mode access
  media-type rj45
  negotiation auto
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED

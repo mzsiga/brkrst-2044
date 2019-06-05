@@ -78,6 +78,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:5::2/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R6
@@ -86,6 +87,7 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:56::5/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_FW4
@@ -94,6 +96,7 @@ interface GigabitEthernet0/3
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:51::5/64
+ no shutdown
 !
 router bgp 64494
  bgp router-id 128.4.4.4

@@ -80,18 +80,21 @@ interface Loopback3
  ip address 10.3.3.3 255.255.255.0
  ip nat inside
  ip virtual-reassembly in
+ no shutdown
 !
 interface Loopback33
  ip address 10.3.33.33 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
  ipv6 address 2001:1283:0:33::33/128
+ no shutdown
 !
 interface Loopback44
  ip address 10.3.44.44 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
  ipv6 address 2001:1283:0:44::44/128
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -110,6 +113,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2001:1283::5/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description NOT USED

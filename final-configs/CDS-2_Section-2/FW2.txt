@@ -69,23 +69,27 @@ interface Loopback2
  ip address 10.2.2.2 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
+ no shutdown
 !
 interface Loopback22
  ip address 10.2.22.22 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
  ipv6 address 2001:1282:0:22::22/128
+ no shutdown
 !
 interface Loopback210
  ip address 10.2.128.2 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
+ no shutdown
 !
 interface Loopback2210
  ip address 10.2.128.22 255.255.255.255
  ip nat inside
  ip virtual-reassembly in
  ipv6 address 2001:1282:8:128::22/128
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -94,7 +98,6 @@ interface GigabitEthernet0/0
  duplex auto
  speed auto
  media-type rj45
- no cdp enable
 !
 interface GigabitEthernet0/1
  description CONN_TO_R2
@@ -105,7 +108,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2001:1282:2::2/64
- no cdp enable
+ no shutdown
 !
 interface GigabitEthernet0/2
  description NOT USED
@@ -114,7 +117,6 @@ interface GigabitEthernet0/2
  duplex auto
  speed auto
  media-type rj45
- no cdp enable
 !
 interface GigabitEthernet0/3
  description NOT USED
@@ -123,7 +125,6 @@ interface GigabitEthernet0/3
  duplex auto
  speed auto
  media-type rj45
- no cdp enable
 !
 !
 router eigrp DUAL-STACK

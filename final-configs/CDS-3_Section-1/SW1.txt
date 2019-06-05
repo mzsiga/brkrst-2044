@@ -60,18 +60,21 @@ interface GigabitEthernet0/1
  switchport access vlan 100
  switchport mode access
  negotiation auto
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R4
  switchport access vlan 100
  switchport mode access
  negotiation auto
+ no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_FW3
  switchport access vlan 100
  switchport mode access
  negotiation auto
+ no shutdown
 !
 ip forward-protocol nd
 !

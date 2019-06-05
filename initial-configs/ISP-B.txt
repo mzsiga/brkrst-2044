@@ -63,6 +63,7 @@ redundancy
 interface Loopback0
  ip address 52.1.1.1 255.255.255.255
  ipv6 address 2100:5200:1:1::1/128
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -79,6 +80,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2100:5000:50:52::2/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R2
@@ -87,6 +89,7 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2100:5200:52:2::1/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_R4
@@ -95,6 +98,7 @@ interface GigabitEthernet0/3
  speed auto
  media-type rj45
  ipv6 address 2100:5200:52:4::1/64
+ no shutdown
 !
 interface GigabitEthernet0/4
  description CONN_TO_R6
@@ -103,6 +107,7 @@ interface GigabitEthernet0/4
  speed auto
  media-type rj45
  ipv6 address 2100:5200:52:6::1/64
+ no shutdown
 !
 interface GigabitEthernet0/5
  description NOT USED

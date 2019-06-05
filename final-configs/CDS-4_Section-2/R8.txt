@@ -1,11 +1,11 @@
-# R7's Initial configuration
+# CDS-4 Section 2: R8's Final configuration
 
 version 15.6
 service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname R7
+hostname R8
 !
 boot-start-marker
 boot-end-marker
@@ -43,7 +43,7 @@ multilink bundle-name authenticated
 !
 !
 !
-username cisco privilege 15 secret 5 $1$VDOX$xnAPaI208xqNUt8HPVosY0
+username cisco privilege 15 secret 5 $1$ov75$T75fr/UPpOgLHejWBScLS/
 !
 redundancy
 !
@@ -64,27 +64,23 @@ ip tcp synwait-time 5
 !
 !
 interface Loopback0
- ip address 128.4.127.254 255.255.255.255
- ipv6 address 2001:1284:4:127::254/128
- no shutdown
+ ip address 128.4.255.254 255.255.255.255
+ ipv6 address 2001:1284:4:255::254/128
 !
-interface Loopback7
+interface Loopback8
  no ip address
- ipv6 address 2001:1284:0:7::7/128
+ ipv6 address 2001:1284:0:8::8/128
  ipv6 eigrp 100
- no shutdown
 !
 interface Loopback44
- ip address 10.4.44.44 255.255.255.255
- ipv6 address 2001:1284:0:44::44/128
+ ip address 10.4.128.44 255.255.255.255
+ ipv6 address 2001:1284:0:128::44/128
  ipv6 eigrp 100
- no shutdown
 !
-interface Loopback77
+interface Loopback88
  no ip address
- ipv6 address 2001:1284:0:77::77/128
+ ipv6 address 2001:1284:0:88::88/128
  ipv6 eigrp 100
- no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -95,23 +91,21 @@ interface GigabitEthernet0/0
  media-type rj45
 !
 interface GigabitEthernet0/1
- description CONN_TO_FW4
- ip address 10.4.0.2 255.255.255.252
+ description CONN_To_R7
+ ip address 10.4.5.2 255.255.255.252
  duplex auto
  speed auto
  media-type rj45
- ipv6 address 2001:1284:4:17::7/64
- no shutdown
+ ipv6 address 2001:1284:4:78::8/64
+ ipv6 eigrp 100
 !
 interface GigabitEthernet0/2
- description CONN_TO_R8
- ip address 10.4.5.1 255.255.255.252
+ description CONN_TO_FW5
+ ip address 10.4.128.2 255.255.255.252
  duplex auto
  speed auto
  media-type rj45
- ipv6 address 2001:1284:4:78::7/64
- ipv6 eigrp 100
- no shutdown
+ ipv6 address 2001:1284:4:28::8/64
 !
 interface GigabitEthernet0/3
  description NOT USED
@@ -123,9 +117,27 @@ interface GigabitEthernet0/3
 !
 !
 router eigrp 10
- network 10.4.5.1 0.0.0.0
+ network 10.4.5.2 0.0.0.0
  passive-interface default
- no passive-interface GigabitEthernet0/2
+ no passive-interface GigabitEthernet0/1
+!
+router bgp 65534
+ bgp log-neighbor-changes
+ neighbor 2001:1284:4:62::6 remote-as 64494
+ neighbor 2001:1284:4:62::6 description IPv6_eBGP_PEER_TO_R6
+ neighbor 2001:1284:4:62::6 ebgp-multihop 255
+ neighbor 2001:1284:4:62::6 update-source Loopback0
+ !
+ address-family ipv4
+  no neighbor 2001:1284:4:62::6 activate
+ exit-address-family
+ !
+ address-family ipv6
+  redistribute eigrp 100 route-map IPv6_EIGRP->BGP include-connected
+  network 2001:1284::/44
+  network 2001:1284:4:28::/64
+  neighbor 2001:1284:4:62::6 activate
+ exit-address-family
 !
 ip forward-protocol nd
 !
@@ -136,9 +148,12 @@ no ip http secure-server
 !
 ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
 ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 route 2001:1284:4:62::/64 2001:1284:4:28::2
+ipv6 route 2001:1284::/44 Null0
 ipv6 router eigrp 100
  passive-interface default
- no passive-interface GigabitEthernet0/2
+ no passive-interface GigabitEthernet0/1
+ redistribute bgp 65534 metric 10000 0 255 1 1500 route-map IPv6_BGP->EIGRP
 !
 !
 !

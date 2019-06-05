@@ -1,4 +1,4 @@
-# R5's Initial configuration
+# CDS-4 Section 2: R5's Final configuration
 
 version 15.6
 service timestamps debug datetime msec
@@ -78,7 +78,6 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:5::2/64
- no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R6
@@ -87,7 +86,6 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:56::5/64
- no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_FW4
@@ -96,14 +94,17 @@ interface GigabitEthernet0/3
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:51::5/64
- no shutdown
 !
 router bgp 64494
  bgp router-id 128.4.4.4
+ bgp always-compare-med
  no bgp log-neighbor-changes
  no bgp default ipv4-unicast
  neighbor 2001:1284:4:56::6 remote-as 64494
  neighbor 2001:1284:4:56::6 description IPv6_iBGP_PEER_TO_R6
+ neighbor 2001:1284:4:127::254 remote-as 65535
+ neighbor 2001:1284:4:127::254 description IPv6_eBGP_PEER_TO_R7
+ neighbor 2001:1284:4:127::254 ebgp-multihop 255
  neighbor 2100:5100:51:5::1 remote-as 64501
  neighbor 2100:5100:51:5::1 description IPv6_eBGP_PEER_TO_ISP-A
  neighbor 51.51.5.1 remote-as 64501
@@ -127,8 +128,13 @@ router bgp 64494
   network 2100:5100:51:5::/64
   neighbor 2001:1284:4:56::6 activate
   neighbor 2001:1284:4:56::6 next-hop-self
+  neighbor 2001:1284:4:127::254 activate
+  neighbor 2001:1284:4:127::254 prefix-list v6Default-Only out
   neighbor 2100:5100:51:5::1 activate
+  neighbor 2100:5100:51:5::1 remove-private-as all
   neighbor 2100:5100:51:5::1 soft-reconfiguration inbound
+  neighbor 2100:5100:51:5::1 prefix-list v6Default-Only in
+  neighbor 2100:5100:51:5::1 prefix-list IPv6_LOCAL_ROUTES out
  exit-address-family
 !
 ip forward-protocol nd
@@ -144,6 +150,7 @@ ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.4.0.0/16
 !
 ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
 ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 route 2001:1284:4:127::254/128 2001:1284:4:51::1
 !
 !
 ipv6 prefix-list IPv6_LOCAL_ROUTES description IPv6_LOCAL_SUBNETS_OUT

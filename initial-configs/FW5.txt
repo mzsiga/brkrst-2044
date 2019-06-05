@@ -80,6 +80,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:62::2/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R8
@@ -90,6 +91,7 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2001:1284:4:28::2/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description NOT USED

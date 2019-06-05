@@ -66,39 +66,49 @@ ip tcp synwait-time 5
 interface Loopback0
  ip address 50.2.2.2 255.255.255.255
  ipv6 address 2100:5000:2:2::2/128
+ no shutdown
 !
 interface Loopback15
  ip address 50.15.15.15 255.255.255.0
  ipv6 address 2100:5000:15:15::15/128
+ no shutdown
 !
 interface Loopback16
  ip address 50.16.16.16 255.255.255.0
  ipv6 address 2100:5000:16:16::16/128
+ no shutdown
 !
 interface Loopback17
  ip address 50.17.17.17 255.255.255.0
  ipv6 address 2100:5000:17:17::17/128
+ no shutdown
 !
 interface Loopback18
  ip address 50.18.18.18 255.255.255.0
  ipv6 address 2100:5000:18:18::18/128
+ no shutdown
 !
 interface Loopback19
  ip address 50.19.19.19 255.255.255.0
  ipv6 address 2100:5000:19:19::19/128
+ no shutdown
 !
 interface Loopback80
  ip address 80.80.80.80 255.255.255.0
+ no shutdown
 !
 interface Loopback96
  ip address 96.96.96.96 255.255.255.0
+ no shutdown
 !
 interface Loopback160
  ip address 160.160.160.160 255.255.255.0
+ no shutdown
 !
 interface Loopback5000
  no ip address
  ipv6 address 2001:5000::1/20
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -115,6 +125,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2100:5000:50:52::1/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_BB1
@@ -123,6 +134,7 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2100:5000:1:2::2/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description NOT USED

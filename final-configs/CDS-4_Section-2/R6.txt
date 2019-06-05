@@ -1,11 +1,11 @@
-# R5's Initial configuration
+# CDS-4 Section 2: R6's Final configuration
 
 version 15.6
 service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname R5
+hostname R6
 !
 boot-start-marker
 boot-end-marker
@@ -43,7 +43,7 @@ multilink bundle-name authenticated
 !
 !
 !
-username cisco privilege 15 secret 5 $1$xZd/$YH2520W/JR/MCq7RGy3zM.
+username cisco privilege 15 secret 5 $1$pUeJ$UkuXJinL3W5GBvOImBqmE1
 !
 redundancy
 !
@@ -72,63 +72,69 @@ interface GigabitEthernet0/0
  media-type rj45
 !
 interface GigabitEthernet0/1
- description CONN_TO_ISP-A
- ip address 51.51.5.2 255.255.255.252
+ description CONN_TO_R5
+ ip address 192.168.0.2 255.255.255.252
  duplex auto
  speed auto
  media-type rj45
- ipv6 address 2100:5100:51:5::2/64
- no shutdown
+ ipv6 address 2001:1284:4:56::6/64
 !
 interface GigabitEthernet0/2
- description CONN_TO_R6
- ip address 192.168.0.1 255.255.255.252
+ description CONN_TO_ISP-B
+ ip address 52.52.6.2 255.255.255.252
  duplex auto
  speed auto
  media-type rj45
- ipv6 address 2001:1284:4:56::5/64
- no shutdown
+ ipv6 address 2100:5200:52:6::2/64
 !
 interface GigabitEthernet0/3
- description CONN_TO_FW4
- ip address 128.4.0.1 255.255.255.252
+ description CONN_TO_FW5
+ ip address 128.4.128.1 255.255.255.252
  duplex auto
  speed auto
  media-type rj45
- ipv6 address 2001:1284:4:51::5/64
- no shutdown
+ ipv6 address 2001:1284:4:62::6/64
 !
 router bgp 64494
- bgp router-id 128.4.4.4
+ bgp router-id 128.4.128.4
+ bgp always-compare-med
  no bgp log-neighbor-changes
  no bgp default ipv4-unicast
- neighbor 2001:1284:4:56::6 remote-as 64494
- neighbor 2001:1284:4:56::6 description IPv6_iBGP_PEER_TO_R6
- neighbor 2100:5100:51:5::1 remote-as 64501
- neighbor 2100:5100:51:5::1 description IPv6_eBGP_PEER_TO_ISP-A
- neighbor 51.51.5.1 remote-as 64501
- neighbor 51.51.5.1 description IPv4_eBGP_PEER_TO_ISP-A
- neighbor 192.168.0.2 remote-as 64494
- neighbor 192.168.0.2 description IPv4_iBGP_PEER_TO_R6
+ neighbor 2001:1284:4:56::5 remote-as 64494
+ neighbor 2001:1284:4:56::5 description IPv6_iBGP_PEER_TO_R5
+ neighbor 2001:1284:4:255::254 remote-as 65534
+ neighbor 2001:1284:4:255::254 description IPv6_eBGP_PEER_TO_R8
+ neighbor 2001:1284:4:255::254 ebgp-multihop 255
+ neighbor 2100:5200:52:6::1 remote-as 64502
+ neighbor 2100:5200:52:6::1 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 52.52.6.1 remote-as 64502
+ neighbor 52.52.6.1 description IPv4_eBGP_PEER_TO_ISP-B
+ neighbor 192.168.0.1 remote-as 64494
+ neighbor 192.168.0.1 description IPv4_iBGP_PEER_TO_R5
  !
  address-family ipv4
-  network 51.51.5.0 mask 255.255.255.252
+  network 52.52.6.0 mask 255.255.255.252
   network 128.4.0.0
-  network 128.4.4.4 mask 255.255.255.255
-  neighbor 51.51.5.1 activate
-  neighbor 51.51.5.1 soft-reconfiguration inbound
-  neighbor 192.168.0.2 activate
-  neighbor 192.168.0.2 next-hop-self
+  network 128.4.128.4 mask 255.255.255.255
+  neighbor 52.52.6.1 activate
+  neighbor 52.52.6.1 soft-reconfiguration inbound
+  neighbor 192.168.0.1 activate
+  neighbor 192.168.0.1 next-hop-self
  exit-address-family
  !
  address-family ipv6
-  network 2001:1284:4:51::/64
   network 2001:1284:4:56::/64
-  network 2100:5100:51:5::/64
-  neighbor 2001:1284:4:56::6 activate
-  neighbor 2001:1284:4:56::6 next-hop-self
-  neighbor 2100:5100:51:5::1 activate
-  neighbor 2100:5100:51:5::1 soft-reconfiguration inbound
+  network 2001:1284:4:62::/64
+  network 2100:5200:52:6::/64
+  neighbor 2001:1284:4:56::5 activate
+  neighbor 2001:1284:4:56::5 next-hop-self
+  neighbor 2001:1284:4:255::254 activate
+  neighbor 2001:1284:4:255::254 prefix-list v6Default-Only out
+  neighbor 2100:5200:52:6::1 activate
+  neighbor 2100:5200:52:6::1 remove-private-as all
+  neighbor 2100:5200:52:6::1 soft-reconfiguration inbound
+  neighbor 2100:5200:52:6::1 prefix-list v6Default-Only in
+  neighbor 2100:5200:52:6::1 prefix-list IPv6_LOCAL_ROUTES out
  exit-address-family
 !
 ip forward-protocol nd
@@ -139,11 +145,12 @@ no ip http secure-server
 !
 !
 ip prefix-list IPv4_LOCAL_ROUTES description LOCAL_SUBNETS_OUT
-ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.4.0.0/17
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.4.128.0/17
 ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.4.0.0/16
 !
 ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
 ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 route 2001:1284:4:255::254/128 2001:1284:4:62::2
 !
 !
 ipv6 prefix-list IPv6_LOCAL_ROUTES description IPv6_LOCAL_SUBNETS_OUT

@@ -63,6 +63,7 @@ redundancy
 interface Loopback0
  ip address 51.1.1.1 255.255.255.255
  ipv6 address 2100:5100:1:1::1/128
+ no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -79,6 +80,7 @@ interface GigabitEthernet0/1
  speed auto
  media-type rj45
  ipv6 address 2100:5000:50:51::2/64
+ no shutdown
 !
 interface GigabitEthernet0/2
  description CONN_TO_R1
@@ -87,6 +89,7 @@ interface GigabitEthernet0/2
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:1::1/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description CONN_TO_R2
@@ -95,6 +98,7 @@ interface GigabitEthernet0/3
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:2::1/64
+ no shutdown
 !
 interface GigabitEthernet0/4
  description CONN_TO_R3
@@ -103,6 +107,7 @@ interface GigabitEthernet0/4
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:3::1/64
+ no shutdown
 !
 interface GigabitEthernet0/5
  description CONN_TO_R5
@@ -111,6 +116,7 @@ interface GigabitEthernet0/5
  speed auto
  media-type rj45
  ipv6 address 2100:5100:51:5::1/64
+ no shutdown
 !
 router bgp 64501
  bgp router-id 51.1.1.1

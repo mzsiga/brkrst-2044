@@ -1,4 +1,4 @@
-# CDS-1 Section 1: FW1's Final configuration
+# FW1's Initial configuration
 
 version 15.6
 service timestamps debug datetime msec

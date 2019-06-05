@@ -1,0 +1,3353 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<topology xmlns="http://www.cisco.com/VIRL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="0.95" xsi:schemaLocation="http://www.cisco.com/VIRL https://raw.github.com/CiscoVIRL/schema/v0.95/virl.xsd">
+    <node name="R1" type="SIMPLE" subtype="IOSv" location="268,359">
+        <extensions>
+            <entry key="config" type="String"># R1's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$p5MV$lMYSXt08QMUQzEx5g7bN6.
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.1.1.1 255.255.255.255
+ ipv6 address 2001:1281:0:1::1/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.1.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:1::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_FW1
+ ip address 128.1.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1281:1::1/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="R3" type="SIMPLE" subtype="IOSv" location="788,480">
+        <extensions>
+            <entry key="config" type="String"># R3's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R3
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$EnjJ$BdhQ4slsppiEP7Euigf3g/
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.3.3.3 255.255.255.255
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.3.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:3::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R4
+ ip address 128.3.0.5 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1283:3:34::3/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_SW1
+ no ip address
+ duplex auto
+ speed auto
+ media-type rj45
+ no shutdown
+!
+router bgp 64493
+ bgp router-id 128.3.3.3
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2001:1283:3:34::4 remote-as 64493
+ neighbor 2001:1283:3:34::4 description IPv6_iBGP_PEER_TO_R4
+ neighbor 2100:5100:51:3::1 remote-as 64501
+ neighbor 2100:5100:51:3::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 51.51.3.1 remote-as 64501
+ neighbor 51.51.3.1 description IPv4_eBGP_PEER_TO_ISP-A
+ neighbor 128.3.0.6 remote-as 64493
+ neighbor 128.3.0.6 description IPv4_iBGP_PEER_TO_R4
+ !
+ address-family ipv4
+  network 51.51.3.0 mask 255.255.255.252
+  network 128.3.0.0
+  network 128.3.0.0 mask 255.255.128.0
+  network 128.3.3.3 mask 255.255.255.255
+  neighbor 51.51.3.1 activate
+  neighbor 51.51.3.1 soft-reconfiguration inbound
+  neighbor 51.51.3.1 prefix-list v4Default-Only in
+  neighbor 51.51.3.1 route-map IPv4_LOCAL_SUBNETS_OUT out
+  neighbor 51.51.3.1 filter-list 1 out
+  neighbor 128.3.0.6 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1283::/44
+  network 2100:5100:51:3::/64
+  neighbor 2001:1283:3:34::4 activate
+  neighbor 2100:5100:51:3::1 activate
+  neighbor 2100:5100:51:3::1 soft-reconfiguration inbound
+  neighbor 2100:5100:51:3::1 prefix-list v6Default-Only in
+  neighbor 2100:5100:51:3::1 filter-list 1 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.3.0.0/16
+ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.3.0.0/17
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+route-map IPv4_EIGRP-&gt;BGP permit 10
+ match ip address prefix-list IPv4_LOCAL_ROUTES
+!
+route-map IPv4_LOCAL_SUBNETS_OUT permit 10
+ match ip address prefix-list IPv4_LOCAL_ROUTES
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="R4" type="SIMPLE" subtype="IOSv" location="928,480">
+        <extensions>
+            <entry key="config" type="String"># R4's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R4
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$15Ai$TeodCnNJtLBA7WYipMDjD/
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.3.4.4 255.255.255.255
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R3
+ ip address 128.3.0.6 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1283:3:34::4/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_ISP-B
+ ip address 52.52.4.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:4::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_SW1
+ no ip address
+ duplex auto
+ speed auto
+ media-type rj45
+ no shutdown
+!
+router bgp 64493
+ bgp router-id 128.3.4.4
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2001:1283:3:34::3 remote-as 64493
+ neighbor 2001:1283:3:34::3 description IPv6_iBGP_PEER_TO_R3
+ neighbor 2100:5200:52:4::1 remote-as 64502
+ neighbor 2100:5200:52:4::1 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 52.52.4.1 remote-as 64502
+ neighbor 52.52.4.1 description IPv4_eBGP_PEER_TO_ISP-B
+ neighbor 128.3.0.5 remote-as 64493
+ neighbor 128.3.0.5 description IPv4_iBGP_PEER_R3
+ !
+ address-family ipv4
+  network 52.52.4.0 mask 255.255.255.252
+  network 128.3.0.0
+  network 128.3.4.4 mask 255.255.255.255
+  network 128.3.128.0 mask 255.255.128.0
+  neighbor 52.52.4.1 activate
+  neighbor 52.52.4.1 soft-reconfiguration inbound
+  neighbor 52.52.4.1 prefix-list v4Default-Only in
+  neighbor 52.52.4.1 route-map IPv4_LOCAL_SUBNETS_OUT out
+  neighbor 52.52.4.1 filter-list 1 out
+  neighbor 128.3.0.5 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1284::/44
+  network 2100:5200:52:4::/64
+  neighbor 2001:1283:3:34::3 activate
+  neighbor 2100:5200:52:4::1 activate
+  neighbor 2100:5200:52:4::1 soft-reconfiguration inbound
+  neighbor 2100:5200:52:4::1 prefix-list v6Default-Only in
+  neighbor 2100:5200:52:4::1 filter-list 1 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.3.0.0/16
+ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.3.128.0/17
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+route-map IPv4_EIGRP-&gt;BGP permit 10
+ match ip address prefix-list IPv4_LOCAL_ROUTES
+!
+route-map IPv4_LOCAL_SUBNETS_OUT permit 10
+ match ip address prefix-list IPv4_LOCAL_ROUTES
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="R5" type="SIMPLE" subtype="IOSv" location="440,480">
+        <extensions>
+            <entry key="config" type="String"># R5's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R5
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$xZd/$YH2520W/JR/MCq7RGy3zM.
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.5.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:5::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R6
+ ip address 192.168.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:56::5/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW4
+ ip address 128.4.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:51::5/64
+ no shutdown
+!
+router bgp 64494
+ bgp router-id 128.4.4.4
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2001:1284:4:56::6 remote-as 64494
+ neighbor 2001:1284:4:56::6 description IPv6_iBGP_PEER_TO_R6
+ neighbor 2100:5100:51:5::1 remote-as 64501
+ neighbor 2100:5100:51:5::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 51.51.5.1 remote-as 64501
+ neighbor 51.51.5.1 description IPv4_eBGP_PEER_TO_ISP-A
+ neighbor 192.168.0.2 remote-as 64494
+ neighbor 192.168.0.2 description IPv4_iBGP_PEER_TO_R6
+ !
+ address-family ipv4
+  network 51.51.5.0 mask 255.255.255.252
+  network 128.4.0.0
+  network 128.4.4.4 mask 255.255.255.255
+  neighbor 51.51.5.1 activate
+  neighbor 51.51.5.1 soft-reconfiguration inbound
+  neighbor 192.168.0.2 activate
+  neighbor 192.168.0.2 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1284:4:51::/64
+  network 2001:1284:4:56::/64
+  network 2100:5100:51:5::/64
+  neighbor 2001:1284:4:56::6 activate
+  neighbor 2001:1284:4:56::6 next-hop-self
+  neighbor 2100:5100:51:5::1 activate
+  neighbor 2100:5100:51:5::1 soft-reconfiguration inbound
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list IPv4_LOCAL_ROUTES description LOCAL_SUBNETS_OUT
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.4.0.0/17
+ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.4.0.0/16
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list IPv6_LOCAL_ROUTES description IPv6_LOCAL_SUBNETS_OUT
+ipv6 prefix-list IPv6_LOCAL_ROUTES seq 5 permit 2001:1284::/44
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="R6" type="SIMPLE" subtype="IOSv" location="653,480">
+        <extensions>
+            <entry key="config" type="String"># R6's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R6
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$pUeJ$UkuXJinL3W5GBvOImBqmE1
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R5
+ ip address 192.168.0.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:56::6/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_ISP-B
+ ip address 52.52.6.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:6::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW5
+ ip address 128.4.128.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:62::6/64
+ no shutdown
+!
+router bgp 64494
+ bgp router-id 128.4.128.4
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2001:1284:4:56::5 remote-as 64494
+ neighbor 2001:1284:4:56::5 description IPv6_iBGP_PEER_TO_R5
+ neighbor 2100:5200:52:6::1 remote-as 64502
+ neighbor 2100:5200:52:6::1 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 52.52.6.1 remote-as 64502
+ neighbor 52.52.6.1 description IPv4_eBGP_PEER_TO_ISP-B
+ neighbor 192.168.0.1 remote-as 64494
+ neighbor 192.168.0.1 description IPv4_iBGP_PEER_TO_R5
+ !
+ address-family ipv4
+  network 52.52.6.0 mask 255.255.255.252
+  network 128.4.0.0
+  network 128.4.128.4 mask 255.255.255.255
+  neighbor 52.52.6.1 activate
+  neighbor 52.52.6.1 soft-reconfiguration inbound
+  neighbor 192.168.0.1 activate
+  neighbor 192.168.0.1 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1284:4:56::/64
+  network 2001:1284:4:62::/64
+  network 2100:5200:52:6::/64
+  neighbor 2001:1284:4:56::5 activate
+  neighbor 2001:1284:4:56::5 next-hop-self
+  neighbor 2100:5200:52:6::1 activate
+  neighbor 2100:5200:52:6::1 soft-reconfiguration inbound
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list IPv4_LOCAL_ROUTES description LOCAL_SUBNETS_OUT
+ip prefix-list IPv4_LOCAL_ROUTES seq 5 permit 128.4.128.0/17
+ip prefix-list IPv4_LOCAL_ROUTES seq 10 permit 128.4.0.0/16
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+!
+ipv6 prefix-list IPv6_LOCAL_ROUTES description IPv6_LOCAL_SUBNETS_OUT
+ipv6 prefix-list IPv6_LOCAL_ROUTES seq 5 permit 2001:1284::/44
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="R7" type="SIMPLE" subtype="IOSv" location="440,714">
+        <extensions>
+            <entry key="config" type="String"># R7's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R7
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$VDOX$xnAPaI208xqNUt8HPVosY0
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.4.127.254 255.255.255.255
+ ipv6 address 2001:1284:4:127::254/128
+ no shutdown
+!
+interface Loopback7
+ no ip address
+ ipv6 address 2001:1284:0:7::7/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface Loopback44
+ ip address 10.4.44.44 255.255.255.255
+ ipv6 address 2001:1284:0:44::44/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface Loopback77
+ no ip address
+ ipv6 address 2001:1284:0:77::77/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_FW4
+ ip address 10.4.0.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:17::7/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R8
+ ip address 10.4.5.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:78::7/64
+ ipv6 eigrp 100
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp 10
+ network 10.4.5.1 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/2
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/2
+!
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv6_EIGRP-&gt;BGP permit 10
+ set metric-type internal
+!
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="ISP-B" type="SIMPLE" subtype="IOSv" location="653,359">
+        <extensions>
+            <entry key="config" type="String"># ISP-B's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname ISP-B
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$e0H9$BTUAhEEDWt9371jlgkZPV0
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 52.1.1.1 255.255.255.255
+ ipv6 address 2100:5200:1:1::1/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_BB2
+ ip address 50.50.52.2 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:52::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R2
+ ip address 52.52.2.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:2::1/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_R4
+ ip address 52.52.4.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:4::1/64
+ no shutdown
+!
+interface GigabitEthernet0/4
+ description CONN_TO_R6
+ ip address 52.52.6.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:6::1/64
+ no shutdown
+!
+interface GigabitEthernet0/5
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router bgp 64502
+ bgp router-id 52.1.1.1
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:50:52::1 remote-as 64500
+ neighbor 2100:5000:50:52::1 description IPv6_eBGP_PEER_TO_BB2
+ neighbor 2100:5200:52:2::2 remote-as 64492
+ neighbor 2100:5200:52:2::2 description IPv6_eBGP_PEER_TO_R2
+ neighbor 2100:5200:52:4::2 remote-as 64493
+ neighbor 2100:5200:52:4::2 description IPv6_eBGP_PEER_TO_R4
+ neighbor 2100:5200:52:6::2 remote-as 64494
+ neighbor 2100:5200:52:6::2 description IPv6_eBGP_PEER_TO_R6
+ neighbor 50.50.52.1 remote-as 64500
+ neighbor 50.50.52.1 description IPv4_eBGP_PEER_TO_BB2
+ neighbor 52.52.2.2 remote-as 64492
+ neighbor 52.52.2.2 description IPv4_eBGP_PEER_TO_R2
+ neighbor 52.52.4.2 remote-as 64493
+ neighbor 52.52.4.2 description IPv4_eBGP_PEER_TO_R4
+ neighbor 52.52.6.2 remote-as 64494
+ neighbor 52.52.6.2 description IPv4_eBGP_PEER_TO_R6
+ !
+ address-family ipv4
+  network 50.50.52.0 mask 255.255.255.0
+  network 52.0.0.0
+  network 52.1.1.1 mask 255.255.255.255
+  network 52.52.2.0 mask 255.255.255.252
+  network 52.52.4.0 mask 255.255.255.252
+  network 52.52.6.0 mask 255.255.255.252
+  neighbor 50.50.52.1 activate
+  neighbor 50.50.52.1 send-community both
+  neighbor 52.52.2.2 activate
+  neighbor 52.52.4.2 activate
+  neighbor 52.52.6.2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2100:5000:50:52::/64
+  network 2100:5200:1:1::1/128
+  network 2100:5200:52:1::/64
+  network 2100:5200:52:2::/64
+  network 2100:5200:52:4::/64
+  network 2100:5200:52:6::/64
+  neighbor 2100:5000:50:52::1 activate
+  neighbor 2100:5000:50:52::1 send-community both
+  neighbor 2100:5200:52:2::2 activate
+  neighbor 2100:5200:52:4::2 activate
+  neighbor 2100:5200:52:6::2 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+        <interface id="3" name="GigabitEthernet0/4"/>
+        <interface id="4" name="GigabitEthernet0/5"/>
+    </node>
+    <node name="ISP-A" type="SIMPLE" subtype="IOSv" location="440,359">
+        <extensions>
+            <entry key="config" type="String"># CDS-1 Section 1: ISP-A's Final configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname ISP-A
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$M5sh$yMCl33c.zj20QHcj4rfeF0
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 51.1.1.1 255.255.255.255
+ ipv6 address 2100:5100:1:1::1/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_BB1
+ ip address 50.50.51.2 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:51::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R1
+ ip address 51.51.1.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:1::1/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_R2
+ ip address 51.51.2.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:2::1/64
+ no shutdown
+!
+interface GigabitEthernet0/4
+ description CONN_TO_R3
+ ip address 51.51.3.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:3::1/64
+ no shutdown
+!
+interface GigabitEthernet0/5
+ description CONN_TO_R5
+ ip address 51.51.5.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:5::1/64
+ no shutdown
+!
+router bgp 64501
+ bgp router-id 51.1.1.1
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:50:51::1 remote-as 64500
+ neighbor 2100:5000:50:51::1 description IPv6_eBGP_PEER_TO_BB1
+ neighbor 2100:5100:51:1::2 remote-as 64491
+ neighbor 2100:5100:51:1::2 description IPv6_eBGP_PEER_TO_R1
+ neighbor 2100:5100:51:2::2 remote-as 64492
+ neighbor 2100:5100:51:2::2 description IPv6_eBGP_PEER_TO_R2
+ neighbor 2100:5100:51:3::2 remote-as 64493
+ neighbor 2100:5100:51:3::2 description IPv6_eBGP_PEER_TO_R3
+ neighbor 2100:5100:51:5::2 remote-as 64494
+ neighbor 2100:5100:51:5::2 description IPv6_eBGP_PEER_TO_R5
+ neighbor 50.50.51.1 remote-as 64500
+ neighbor 50.50.51.1 description IPv4_iBGP_PEER_TO_BB1
+ neighbor 51.51.1.2 remote-as 64491
+ neighbor 51.51.1.2 description IPv4_iBGP_PEER_TO_R1
+ neighbor 51.51.2.2 remote-as 64492
+ neighbor 51.51.2.2 description IPv4_iBGP_PEER_TO_R2
+ neighbor 51.51.3.2 remote-as 64493
+ neighbor 51.51.3.2 description IPv4_iBGP_PEER_TO_R3
+ neighbor 51.51.5.2 remote-as 64494
+ neighbor 51.51.5.2 description IPv4_iBGP_PEER_TO_R5
+ !
+ address-family ipv4
+  network 50.50.51.0 mask 255.255.255.0
+  network 51.0.0.0
+  network 51.1.1.1 mask 255.255.255.255
+  network 51.51.1.0 mask 255.255.255.252
+  network 51.51.2.0 mask 255.255.255.252
+  network 51.51.3.0 mask 255.255.255.252
+  network 51.51.5.0 mask 255.255.255.252
+  network 128.1.0.0
+  neighbor 50.50.51.1 activate
+  neighbor 50.50.51.1 send-community both
+  neighbor 51.51.1.2 activate
+  neighbor 51.51.2.2 activate
+  neighbor 51.51.3.2 activate
+  neighbor 51.51.5.2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1281::/44
+  network 2100:5000:50:51::/64
+  network 2100:5100:1:1::1/128
+  network 2100:5100:51:1::/64
+  network 2100:5100:51:2::/64
+  network 2100:5100:51:3::/64
+  network 2100:5100:51:5::/64
+  neighbor 2100:5000:50:51::1 activate
+  neighbor 2100:5000:50:51::1 send-community both
+  neighbor 2100:5100:51:1::2 activate
+  neighbor 2100:5100:51:2::2 activate
+  neighbor 2100:5100:51:3::2 activate
+  neighbor 2100:5100:51:5::2 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 128.1.0.0 255.255.0.0 51.51.1.2
+!
+ipv6 route 2001:1281::/44 2100:5100:51:1::2
+!
+!
+!
+control-plane
+!
+banner exec ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner incoming ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner login ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+        <interface id="3" name="GigabitEthernet0/4"/>
+        <interface id="4" name="GigabitEthernet0/5"/>
+        <interface id="5" name="GigabitEthernet0/6"/>
+    </node>
+    <node name="BB1" type="SIMPLE" subtype="IOSv" location="499,287">
+        <extensions>
+            <entry key="config" type="String"># BB1's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname BB1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$9cHG$TMgqJ1v3Pk5dcD8KH.vYm.
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 50.1.1.1 255.255.255.255
+ ipv6 address 2100:5000:1:1::1/128
+ no shutdown
+!
+interface Loopback10
+ ip address 50.10.10.10 255.255.255.0
+ ipv6 address 2100:5000:10:10::10/128
+ no shutdown
+!
+interface Loopback11
+ ip address 50.11.11.11 255.255.255.0
+ ipv6 address 2100:5000:11:11::11/128
+ no shutdown
+!
+interface Loopback12
+ ip address 50.12.12.12 255.255.255.0
+ ipv6 address 2100:5000:12:12::12/128
+ no shutdown
+!
+interface Loopback13
+ ip address 50.13.13.13 255.255.255.0
+ ipv6 address 2100:5000:13:13::13/128
+ no shutdown
+!
+interface Loopback14
+ ip address 50.14.14.14 255.255.255.0
+ ipv6 address 2100:5000:14:14::14/128
+ no shutdown
+!
+interface Loopback16
+ ip address 16.16.16.16 255.255.255.0
+ ipv6 address 2000:16:16:16::16/128
+ no shutdown
+!
+interface Loopback32
+ ip address 32.32.32.32 255.255.255.0
+ no shutdown
+!
+interface Loopback64
+ ip address 64.64.64.64 255.255.255.0
+ no shutdown
+!
+interface Loopback2001
+ no ip address
+ ipv6 address 2001:1::1/32
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 50.50.51.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:51::1/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_BB2
+ ip address 50.1.2.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:1:2::1/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router bgp 64500
+ bgp router-id 50.1.1.1
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:1:2::2 remote-as 64500
+ neighbor 2100:5000:1:2::2 description IPv6_iBGP_PEER_TO_BB2
+ neighbor 2100:5000:50:51::2 remote-as 64501
+ neighbor 2100:5000:50:51::2 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 50.1.2.2 remote-as 64500
+ neighbor 50.1.2.2 description IPv4_iBGP_PEER_TO_BB2
+ neighbor 50.50.51.2 remote-as 64501
+ neighbor 50.50.51.2 description IPv4_eBGP_PEER_ISP-A
+ !
+ address-family ipv4
+  network 16.16.16.0 mask 255.255.255.0
+  network 32.32.32.0 mask 255.255.255.0
+  network 50.0.0.0
+  network 50.1.1.1 mask 255.255.255.255
+  network 50.1.2.0 mask 255.255.255.0
+  network 50.10.10.0 mask 255.255.255.0
+  network 50.11.11.0 mask 255.255.255.0
+  network 50.12.12.0 mask 255.255.255.0
+  network 50.13.13.0 mask 255.255.255.0
+  network 50.14.14.0 mask 255.255.255.0
+  network 50.50.51.0 mask 255.255.255.0
+  network 64.64.64.0 mask 255.255.255.0
+  neighbor 50.1.2.2 activate
+  neighbor 50.1.2.2 send-community both
+  neighbor 50.50.51.2 activate
+  neighbor 50.50.51.2 send-community both
+  neighbor 50.50.51.2 default-originate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:16:16:16::16/128
+  network 2001:1::/32
+  network 2100:5000:1:1::1/128
+  network 2100:5000:1:2::/64
+  network 2100:5000:10:10::10/128
+  network 2100:5000:11:11::11/128
+  network 2100:5000:12:12::12/128
+  network 2100:5000:13:13::13/128
+  network 2100:5000:14:14::14/128
+  network 2100:5000:50:51::/64
+  neighbor 2100:5000:1:2::2 activate
+  neighbor 2100:5000:1:2::2 send-community both
+  neighbor 2100:5000:50:51::2 activate
+  neighbor 2100:5000:50:51::2 send-community both
+  neighbor 2100:5000:50:51::2 default-originate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="SW1" type="SIMPLE" subtype="IOSvL2" location="870,587">
+        <extensions>
+            <entry key="config" type="String"># SW1's Initial configuration
+
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+username cisco privilege 15 secret 5 $1$K1v2$829WDHvEBl2EzvZUr2Fqf1
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no switchport
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R3
+ negotiation auto
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R4
+ negotiation auto
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW3
+ negotiation auto
+ no shutdown
+!
+ip forward-protocol nd
+!
+ip http server
+no ip http secure-server
+!
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+route-map IPv6_STATIC-&gt;EIGRP permit 10
+ match tag 100
+!
+route-map IPv4_STATIC-&gt;EIGRP permit 10
+ match tag 10
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet
+!
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="R8" type="SIMPLE" subtype="IOSv" location="652,714">
+        <extensions>
+            <entry key="config" type="String"># R8's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R8
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$ov75$T75fr/UPpOgLHejWBScLS/
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.4.255.254 255.255.255.255
+ ipv6 address 2001:1284:4:255::254/128
+ no shutdown
+!
+interface Loopback8
+ no ip address
+ ipv6 address 2001:1284:0:8::8/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface Loopback44
+ ip address 10.4.128.44 255.255.255.255
+ ipv6 address 2001:1284:0:128::44/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface Loopback88
+ no ip address
+ ipv6 address 2001:1284:0:88::88/128
+ ipv6 eigrp 100
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_To_R7
+ ip address 10.4.5.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:78::8/64
+ ipv6 eigrp 100
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_FW5
+ ip address 10.4.128.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:28::8/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp 10
+ network 10.4.5.2 0.0.0.0
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+ipv6 router eigrp 100
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+!
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+route-map IPv6_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v6Default-Only
+!
+route-map IPv6_EIGRP-&gt;BGP permit 10
+ set metric-type internal
+!
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="BB2" type="SIMPLE" subtype="IOSv" location="603,287">
+        <extensions>
+            <entry key="config" type="String"># BB2's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname BB2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$X11e$jmAmXnvddQZwnjYKMlnjD0
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 50.2.2.2 255.255.255.255
+ ipv6 address 2100:5000:2:2::2/128
+ no shutdown
+!
+interface Loopback15
+ ip address 50.15.15.15 255.255.255.0
+ ipv6 address 2100:5000:15:15::15/128
+ no shutdown
+!
+interface Loopback16
+ ip address 50.16.16.16 255.255.255.0
+ ipv6 address 2100:5000:16:16::16/128
+ no shutdown
+!
+interface Loopback17
+ ip address 50.17.17.17 255.255.255.0
+ ipv6 address 2100:5000:17:17::17/128
+ no shutdown
+!
+interface Loopback18
+ ip address 50.18.18.18 255.255.255.0
+ ipv6 address 2100:5000:18:18::18/128
+ no shutdown
+!
+interface Loopback19
+ ip address 50.19.19.19 255.255.255.0
+ ipv6 address 2100:5000:19:19::19/128
+ no shutdown
+!
+interface Loopback80
+ ip address 80.80.80.80 255.255.255.0
+ no shutdown
+!
+interface Loopback96
+ ip address 96.96.96.96 255.255.255.0
+ no shutdown
+!
+interface Loopback160
+ ip address 160.160.160.160 255.255.255.0
+ no shutdown
+!
+interface Loopback5000
+ no ip address
+ ipv6 address 2001:5000::1/20
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-B
+ ip address 50.50.52.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:50:52::1/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_BB1
+ ip address 50.1.2.2 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5000:1:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router bgp 64500
+ bgp router-id 50.2.2.2
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5000:1:2::1 remote-as 64500
+ neighbor 2100:5000:1:2::1 description IPv6_iBGP_PEER_TO_BB1
+ neighbor 2100:5000:50:52::2 remote-as 64502
+ neighbor 2100:5000:50:52::2 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 50.1.2.1 remote-as 64500
+ neighbor 50.1.2.1 description IPv4_iBGP_PEER_TO_BB1
+ neighbor 50.50.52.2 remote-as 64502
+ neighbor 50.50.52.2 description IPv4_eBGP_PEER_TO_ISP-B
+ !
+ address-family ipv4
+  network 50.0.0.0
+  network 50.1.2.0 mask 255.255.255.0
+  network 50.2.2.2 mask 255.255.255.255
+  network 50.15.15.0 mask 255.255.255.0
+  network 50.16.16.0 mask 255.255.255.0
+  network 50.17.17.0 mask 255.255.255.0
+  network 50.18.18.0 mask 255.255.255.0
+  network 50.19.19.0 mask 255.255.255.0
+  network 50.50.52.0 mask 255.255.255.0
+  network 80.80.80.0 mask 255.255.255.0
+  network 96.96.96.0 mask 255.255.255.0
+  network 160.160.160.0 mask 255.255.255.0
+  neighbor 50.1.2.1 activate
+  neighbor 50.1.2.1 send-community both
+  neighbor 50.50.52.2 activate
+  neighbor 50.50.52.2 send-community both
+  neighbor 50.50.52.2 default-originate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:5000::/20
+  network 2100:5000:1:2::/64
+  network 2100:5000:2:2::2/128
+  network 2100:5000:15:15::15/128
+  network 2100:5000:16:16::16/128
+  network 2100:5000:17:17::17/128
+  network 2100:5000:18:18::18/128
+  network 2100:5000:19:19::19/128
+  network 2100:5000:50:52::/64
+  neighbor 2100:5000:1:2::1 activate
+  neighbor 2100:5000:1:2::1 send-community both
+  neighbor 2100:5000:50:52::2 activate
+  neighbor 2100:5000:50:52::2 send-community both
+  neighbor 2100:5000:50:52::2 default-originate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="FW3" type="SIMPLE" subtype="IOSv" location="762,668">
+        <extensions>
+            <entry key="config" type="String"># FW3's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW3
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+crypto pki trustpoint _SmartCallHome_ServerCA
+ revocation-check crl
+!
+crypto pki trustpool policy
+ revocation-check none
+!
+!
+crypto pki certificate chain _SmartCallHome_ServerCA
+ certificate ca 513FB9743870B73440418D30930699FF
+        quit
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+class-map match-all inspection_default
+!
+policy-map global_policy
+ class inspection_default
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback3
+ ip address 10.3.3.3 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ no shutdown
+!
+interface Loopback33
+ ip address 10.3.33.33 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1283:0:33::33/128
+ no shutdown
+!
+interface Loopback44
+ ip address 10.3.44.44 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1283:0:44::44/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_SW1
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list 100 interface GigabitEthernet0/1 overload
+ip nat inside source static 10.3.33.33 128.3.33.33
+!
+!
+!
+access-list 100 permit ip 10.3.3.0 0.0.0.255 any
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+    </node>
+    <node name="R2" type="SIMPLE" subtype="IOSv" location="268,480">
+        <extensions>
+            <entry key="config" type="String"># R2's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 128.2.2.2 255.255.255.255
+ ipv6 address 2001:1282:0:2::2/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_ISP-B
+ ip address 52.52.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW2
+ ip address 128.2.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1282:2::1/64
+ no shutdown
+!
+!
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+   redistribute bgp 64492 metric 10000 10 255 1 1500 route-map IPv4_BGP-&gt;EIGRP
+  exit-af-topology
+  network 128.2.0.1 0.0.0.0
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+   redistribute bgp 64492 metric 10000 10 255 1 1500 route-map IPv6_BGP-&gt;EIGRP
+  exit-af-topology
+ exit-address-family
+!
+router bgp 64492
+ no bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2100:5100:51:2::1 remote-as 64501
+ neighbor 2100:5100:51:2::1 description IPv6_eBGP_PEER_TO_ISP-A
+ neighbor 2100:5200:52:2::1 remote-as 64502
+ neighbor 2100:5200:52:2::1 description IPv6_eBGP_PEER_TO_ISP-B
+ neighbor 51.51.2.1 remote-as 64501
+ neighbor 51.51.2.1 description IPv4_eBGP_PEER_TO_ISP-A
+ neighbor 52.52.2.1 remote-as 64502
+ neighbor 52.52.2.1 description IPv4_eBGP_PEER_TO_ISP-B
+ !
+ address-family ipv4
+  network 51.51.2.0 mask 255.255.255.252
+  network 52.52.2.0 mask 255.255.255.252
+  network 128.2.0.0
+  neighbor 51.51.2.1 activate
+  neighbor 51.51.2.1 soft-reconfiguration inbound
+  neighbor 52.52.2.1 activate
+  neighbor 52.52.2.1 soft-reconfiguration inbound
+ exit-address-family
+ !
+ address-family ipv6
+  network 2001:1282::/44
+  network 2100:5100:51:2::/64
+  network 2100:5200:52:2::/64
+  neighbor 2100:5100:51:2::1 activate
+  neighbor 2100:5100:51:2::1 soft-reconfiguration inbound
+  neighbor 2100:5200:52:2::1 activate
+  neighbor 2100:5200:52:2::1 soft-reconfiguration inbound
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list v4Default-Only description ALLOW_ONLY_v4DEFAULT_ROUTE
+ip prefix-list v4Default-Only seq 5 permit 0.0.0.0/0
+!
+ip prefix-list v4ispAin description EVERY_OTHER_SLASH4
+ip prefix-list v4ispAin seq 5 permit 0.0.0.0/0
+ip prefix-list v4ispAin seq 10 permit 0.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 15 permit 32.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 20 permit 64.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 25 permit 96.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 30 permit 128.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 35 permit 160.0.0.0/4 le 24
+ip prefix-list v4ispAin seq 40 permit 192.0.0.0/4 le 24
+!
+ip prefix-list v4ispAout description OUTBOUNDv4_FILTER_FOR_ispA
+ip prefix-list v4ispAout seq 5 permit 128.2.0.0/16
+ip prefix-list v4ispAout seq 10 permit 128.2.0.0/17
+!
+ip prefix-list v4ispBin description DEFAULT_IN_B
+ip prefix-list v4ispBin seq 5 permit 0.0.0.0/0
+!
+ip prefix-list v4ispBout description OUTBOUNDv4_FILTER_FOR_ispB
+ip prefix-list v4ispBout seq 5 permit 128.2.0.0/16
+ip prefix-list v4ispBout seq 10 permit 128.2.128.0/17
+!
+!
+ipv6 prefix-list v6Default-Only description ALLOW_ONLY_v6DEFAULT_ROUTE
+ipv6 prefix-list v6Default-Only seq 5 permit ::/0
+!
+ipv6 prefix-list v6ispAin description FIRST_HALF_V6
+ipv6 prefix-list v6ispAin seq 5 permit ::/0
+ipv6 prefix-list v6ispAin seq 10 permit 2001::/18 le 32
+!
+ipv6 prefix-list v6ispBin description SECOND_HALF_V6
+ipv6 prefix-list v6ispBin seq 5 permit 2001:4000::/20 le 32
+ipv6 prefix-list v6ispBin seq 10 permit 2001:8000::/22 le 32
+ipv6 prefix-list v6ispBin seq 15 permit 2002::/15 le 32
+ipv6 prefix-list v6ispBin seq 20 permit 2001:5000::/20 le 32
+ipv6 prefix-list v6ispBin seq 25 permit 2400::/6 le 32
+ipv6 prefix-list v6ispBin seq 30 permit 2800::/5 le 32
+route-map IN-ispA permit 10
+ description APPLY_TO_INBOUND_PREFIXES_FROM ispA
+ match ip address prefix-list v4ispAin
+!
+route-map IN-ispB permit 10
+ match ip address prefix-list v4ispBin
+ set local-preference 200
+!
+route-map IPv6_BGP-&gt;EIGRP permit 10
+ match ipv6 address prefix-list v6Default-Only
+!
+route-map IPv4_BGP-&gt;EIGRP permit 10
+ match ip address prefix-list v4Default-Only
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+        <interface id="2" name="GigabitEthernet0/3"/>
+    </node>
+    <node name="FW4" type="SIMPLE" subtype="IOSv" location="431,597">
+        <extensions>
+            <entry key="config" type="String"># FW4's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW4
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$UtoY$GRnr3Zq/7tqSKbMKgqBLp1
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R5
+ ip address 128.4.0.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:51::1/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R7
+ ip address 10.4.0.1 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:17::1/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list 100 interface GigabitEthernet0/1 overload
+ip nat inside source static 10.4.44.44 128.4.44.44
+!
+!
+!
+access-list 100 permit ip 10.4.0.0 0.0.127.255 any
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="FW5" type="SIMPLE" subtype="IOSv" location="654,592">
+        <extensions>
+            <entry key="config" type="String"># FW5's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW5
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$l9lw$LNe7WJtOEiOCjWwChVnQH/
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R6
+ ip address 128.4.128.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:62::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_R8
+ ip address 10.4.128.1 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1284:4:28::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list 100 interface GigabitEthernet0/1 overload
+ip nat inside source static 10.4.128.44 128.4.128.44
+!
+!
+!
+access-list 100 permit ip 10.4.128.0 0.0.127.255 any
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+        <interface id="1" name="GigabitEthernet0/2"/>
+    </node>
+    <node name="FW2" type="SIMPLE" subtype="IOSv" location="268,594">
+        <extensions>
+            <entry key="config" type="String"># FW2's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+no process cpu autoprofile hog
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$xv1o$3O/zne8PoXjsNiYWw7Md1/
+!
+redundancy
+!
+no cdp log mismatch duplex
+no cdp run
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback2
+ ip address 10.2.2.2 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ no shutdown
+!
+interface Loopback22
+ ip address 10.2.22.22 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1282:0:22::22/128
+ no shutdown
+!
+interface Loopback210
+ ip address 10.2.128.2 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ no shutdown
+!
+interface Loopback2210
+ ip address 10.2.128.22 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1282:8:128::22/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R2
+ ip address 128.2.0.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1282:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/1
+   summary-address 128.2.0.0 255.255.0.0
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 128.2.0.2 0.0.0.0
+  network 128.2.128.2 0.0.0.0
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/1
+   summary-address 2001:1282::/44
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list 100 interface GigabitEthernet0/1 overload
+ip nat inside source static 10.2.22.22 128.2.22.22
+ip nat inside source static 10.2.128.22 128.2.128.22
+!
+ip access-list extended Internet_Inbound
+!
+!
+!
+access-list 100 permit ip 10.2.2.0 0.0.0.255 any
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+    </node>
+    <node name="FW1" type="SIMPLE" subtype="IOSv" location="87,357">
+        <extensions>
+            <entry key="config" type="String"># FW1's Initial configuration
+
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1
+ ip address 10.1.1.1 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1281:0:1::1/128
+ no shutdown
+!
+interface Loopback11
+ ip address 10.1.11.11 255.255.255.255
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:1281:0:11::11/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R1
+ ip address 128.1.0.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1281:1::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list 100 interface GigabitEthernet0/1 overload
+ip nat inside source static 10.1.11.11 128.1.11.11
+ip route 0.0.0.0 0.0.0.0 128.1.0.1
+!
+ipv6 route ::/0 2001:1281:1::1
+!
+!
+access-list 100 permit ip 10.1.1.0 0.0.0.255 any
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+no scheduler allocate
+!
+end
+</entry>
+        </extensions>
+        <interface id="0" name="GigabitEthernet0/1"/>
+    </node>
+    <annotations/>
+    <connection dst="/virl:topology/virl:node[9]/virl:interface[1]" src="/virl:topology/virl:node[8]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[8]/virl:interface[2]" src="/virl:topology/virl:node[1]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[8]/virl:interface[4]" src="/virl:topology/virl:node[2]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[3]/virl:interface[1]" src="/virl:topology/virl:node[2]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[7]/virl:interface[3]" src="/virl:topology/virl:node[3]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[10]/virl:interface[1]" src="/virl:topology/virl:node[2]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[10]/virl:interface[2]" src="/virl:topology/virl:node[3]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[8]/virl:interface[5]" src="/virl:topology/virl:node[4]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[5]/virl:interface[1]" src="/virl:topology/virl:node[4]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[7]/virl:interface[4]" src="/virl:topology/virl:node[5]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[11]/virl:interface[1]" src="/virl:topology/virl:node[6]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[12]/virl:interface[1]" src="/virl:topology/virl:node[7]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[12]/virl:interface[2]" src="/virl:topology/virl:node[9]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[8]/virl:interface[3]" src="/virl:topology/virl:node[14]/virl:interface[1]"/>
+    <connection dst="/virl:topology/virl:node[7]/virl:interface[2]" src="/virl:topology/virl:node[14]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[13]/virl:interface[1]" src="/virl:topology/virl:node[10]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[18]/virl:interface[1]" src="/virl:topology/virl:node[1]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[17]/virl:interface[1]" src="/virl:topology/virl:node[14]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[15]/virl:interface[1]" src="/virl:topology/virl:node[4]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[16]/virl:interface[1]" src="/virl:topology/virl:node[5]/virl:interface[3]"/>
+    <connection dst="/virl:topology/virl:node[6]/virl:interface[1]" src="/virl:topology/virl:node[15]/virl:interface[2]"/>
+    <connection dst="/virl:topology/virl:node[11]/virl:interface[2]" src="/virl:topology/virl:node[16]/virl:interface[2]"/>
+</topology>

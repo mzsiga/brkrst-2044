@@ -24,8 +24,11 @@ This folder contains the instructions and steps for Common Deployment Scenario 3
 ## CDS 4
 This folder contains the instructions and steps for Common Deployment Scenario 4: Multiple Routers, Multiple links, and Multiple Sites
 
-## initial-configs
+## Initial configs
 This folder contains the initial lab demo basic configurations. Load these into your topology to following along with the different CDS Scenarios.
 
-## final-configs
+## Final Configs
 This folder contains the final working configuration for each CDS Section. You can use these as a reference as you complete the different CDS scenarios.
+
+## Cisco VIRL Topology
+Within this folder is the Cisco VIRL Topology used for the Lab demonstration!

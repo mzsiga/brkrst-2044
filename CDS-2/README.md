@@ -435,9 +435,7 @@ In this Section we will walk through the configurations for two Direct Internet 
 
 Note: Before we get into the nuts and bolts of it all, with DIA designs running PAT you cannot inherently host services so please keep this in mind when deciding a proper design for your organizations
 
-Initial configurations should be loaded from the below link as a number of changes had to be made to R2 and FW2 for this scenario.
-
-> CDS-2_Section-3 Initial Configurations:  https://github.com/mzsiga/brkrst-2044/tree/master/Initial%20Configs/CDS-2_Section-3 /
+Initial configurations should be loaded from the below link as a number of changes had to be made to R2 and FW2 for this scenario. https://github.com/mzsiga/brkrst-2044/tree/master/Initial%20Configs/CDS-2_Section-3
 
 ## Ingress Policy
 

@@ -1,0 +1,193 @@
+# CDS-2 Section 3: FW2's Initial configuration
+
+Current configuration : 4617 bytes
+!
+! Last configuration change at 12:06:36 UTC Tue Jan 14 2020
+!
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname FW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+no process cpu autoprofile hog
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username cisco privilege 15 secret 5 $1$xv1o$3O/zne8PoXjsNiYWw7Md1/
+!
+redundancy
+!
+no cdp log mismatch duplex
+no cdp run
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback2
+ ip address 10.2.2.2 255.255.255.255
+ ip virtual-reassembly in
+ no shutdown
+!
+interface Loopback22
+ ip address 10.2.22.22 255.255.255.255
+ ip virtual-reassembly in
+ ipv6 address 2001:1282:0:22::22/128
+ no shutdown
+!
+interface Loopback210
+ ip address 10.2.128.2 255.255.255.255
+ ip virtual-reassembly in
+ no shutdown
+!
+interface Loopback2210
+ ip address 10.2.128.22 255.255.255.255
+ ip virtual-reassembly in
+ ipv6 address 2001:1282:8:128::22/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+ no cdp enable
+!
+interface GigabitEthernet0/1
+ description CONN_TO_R2
+ ip address 128.2.0.2 255.255.255.252
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1282:2::2/64
+ no cdp enable
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+ no cdp enable
+!
+interface GigabitEthernet0/3
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+ no cdp enable
+!
+!
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/1
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 128.2.0.2 0.0.0.0
+  network 128.2.128.2 0.0.0.0
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/1
+   summary-address 2001:1282::/44
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ip access-list extended Internet_Inbound
+!
+!
+!
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet
+!
+no scheduler allocate
+!
+end

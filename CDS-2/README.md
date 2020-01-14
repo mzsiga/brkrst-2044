@@ -2,7 +2,7 @@
 
 My Contact information:
 > Email:    michael.zsiga@gmail.com\
-> Twitter:  https://twitter.com/michael_zsiga \
+> Twitter:  https://twitter.com/zig_zsiga \
 > LinkedIn: https://www.linkedin.com/in/zigzag \
 > Website:  https://zigbits.tech
 
@@ -426,8 +426,147 @@ And here are the screenshots for proof!! :)
 
 ![CDS-2 Section 2: Egress Policy Verification IPv6 ping](CDS-2_Section_2-11.png)
 
+
+# CDS-2 Section 3: DIA Links with PAT and IP SLA
+
+At Cisco Live US 2019 in San Diego, there were a number of comments from the attendees about Direct Internet Access (DIA) connections to the internet so I figured lets add a section in here for Cisco Live Europe 2020 in Barcelona.
+
+In this Section we will walk through the configurations for two Direct Internet Links with Port Address Translation and IP SLA.
+
+Note: Before we get into the nuts and bolts of it all, with DIA designs running PAT you cannot inherently host services so please keep this in mind when deciding a proper design for your organizations
+
+Initial configurations should be loaded from the below link as a number of changes had to be made to R2 and FW2 for this scenario.
+
+> CDS-2_Section-3 Initial Configurations:  https://github.com/mzsiga/brkrst-2044/tree/master/Initial%20Configs/CDS-2_Section-3 /
+
+## Ingress Policy
+
+For our ingress policy we are going to leverage Port Address Translation (PAT) on our provider given outside addresses to maintain state of the organization network traffic leaving our edge router (R2) so that we may allow the corresponding return traffic back into our network.
+
+Our first task is to configure Port Address Translation for both of our ISP links for any of our internal traffic heading outbound to the internet.  Here are the commands we are going to leverage to accomplish this task.
+
+```
+# On R2
+
+# Define our internal traffic to match in our NAT statement
+access-list 100 permit ip 10.2.0.0 0.0.255.255 any
+access-list 100 permit ip 128.2.0.0 0.0.0.3 any
+
+# Match our ACL 100 and the corresponding interface for each provider
+route-map NAT_ISP2 permit 10
+ match ip address 100
+ match interface GigabitEthernet0/2
+
+route-map NAT_ISP1 permit 10
+ match ip address 100
+ match interface GigabitEthernet0/1
+
+# Enable inside and outside NAT
+int g0/1
+ ip nat outside
+
+int g0/2
+ ip nat outside
+
+int g0/3
+ ip nat inside
+
+# Enable our NAT with PAT by calling each route-map and specifying the correct interface
+ip nat inside source route-map NAT_ISP1 interface GigabitEthernet0/1 overload
+ip nat inside source route-map NAT_ISP2 interface GigabitEthernet0/2 overload
+```
+
+Here is a screenshot showing these configurations being applied to R2.
+
+![CDS-2 Section 3: Ingress Policy - PAT Configuration](CDS-2_Section_3-01.png)
+
+## Egress Policy
+
+For our egress policy we are going to configure default routes pointing to our provider's next hop address. To make these default routes a little dynamic we will configure IP SLA's and track options to bring them down if the next hop is not reachable or if corresponding link goes down for any reason.
+
+These two default routes will then be redistributed into the IGP to properly propagate the route within the enterprise network.
+
+Here are the associated configurations to complete these tasks:
+
+```
+# On R2
+
+# The IP SLA configurations for each ISP Link
+ip sla 1
+ icmp-echo 51.51.2.1 source-interface GigabitEthernet0/1
+ threshold 2
+ timeout 1000
+ frequency 5
+ip sla schedule 1 life forever start-time now
+
+ip sla 2
+ icmp-echo 52.52.2.1 source-interface GigabitEthernet0/2
+ threshold 2
+ timeout 1000
+ frequency 5
+ip sla schedule 2 life forever start-time now
+
+# The track configurations
+track 1 ip sla 1 reachability
+track 2 ip sla 2 reachability
+
+# The default routes with tracks
+ip route 0.0.0.0 0.0.0.0 51.51.2.1 track 1
+ip route 0.0.0.0 0.0.0.0 52.52.2.1 track 2
+
+# The static redistribution into IGP
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  topology base
+   redistribute static
+  exit-af-topology
+ exit-address-family
+exit
+```
+
+Here are two screenshots showing these configurations being applied to R2.
+
+![CDS-2 Section 3: Egress Policy - IP SLA, Track, and Default Routes](CDS-2_Section_3-02.png)
+
+![CDS-2 Section 3: Egress Policy - Static Route IGP Redistribution](CDS-2_Section_3-03.png)
+
+## Verification
+
+To verifying our ingress and egress plan we are going to leverage 'ping' and 'show ip nat translations'.
+
+On FW2 we are going to ping the below ip addresses that are loopback addresses on BB1 and BB2.
+
+```
+  # On FW2
+  ping 16.16.16.16
+  ping 32.32.32.32
+  ping 64.64.64.64
+  ping 80.80.80.80
+  ping 96.96.86.86
+  ping 160.160.160.160
+```
+
+Right after we complete these pings on FW2 we are going to jump to R2 and issue the following command:
+
+```
+# On R2
+ show ip nat translations
+```
+
+Screenshots of both of these steps are below:
+
+![CDS-2 Section 3: Verification - FW2 Pings](CDS-2_Section_3-04.png)
+
+![CDS-2 Section 3: Verification - R2 Show IP NAT Translations](CDS-2_Section_3-05.png)
+
+Looking at these screenshots you will see that some of these pings from FW2 end up having an inside global NAT address for ISP1 (51.51.2.2) while others have an inside global NAT address for ISP2 (52.52.2.2).
+
 # Thats a wrap for CDS-2
 
 The final configurations files for CDS-2 Section 1 are located under /final-configs/CDS-2_Section_1
 
 The final configurations files for CDS-2 Section 2 are located under /final-configs/CDS-2_Section_2
+
+The final configurations files for CDS-2 Section 3 are located under /final-configs/CDS-2_Section_3

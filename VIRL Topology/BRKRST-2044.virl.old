@@ -3177,7 +3177,7 @@ end
         </extensions>
         <interface id="0" name="GigabitEthernet0/1"/>
     </node>
-    <node name="FW1" type="SIMPLE" subtype="IOSv" location="77,381">
+    <node name="FW1" type="SIMPLE" subtype="IOSv" location="87,357">
         <extensions>
             <entry key="config" type="String"># FW1's Initial configuration
 

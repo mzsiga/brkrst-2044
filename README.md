@@ -3,7 +3,7 @@ Welcome to the Github repository for the lab demonstration!
 
 > Contact information:\
 > Email:    michael.zsiga@gmail.com\
-> Twitter:  https://twitter.com/michael_zsiga \
+> Twitter:  https://twitter.com/zig_zsiga \
 > LinkedIn: https://www.linkedin.com/in/zigzag \
 > Website:  https://zigbits.tech
 

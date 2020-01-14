@@ -1,0 +1,137 @@
+# CDS-2 Section 3: R2's Initial configuration
+
+Current configuration : 6436 bytes
+!
+! Last configuration change at 14:51:46 UTC Tue Jan 14 2020
+!
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+no ip icmp rate-limit unreachable
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+interface Loopback0
+ ip address 128.2.2.2 255.255.255.255
+ ipv6 address 2001:1282:0:2::2/128
+ no shutdown
+!
+interface GigabitEthernet0/0
+ description NOT USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description CONN_TO_ISP-A
+ ip address 51.51.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5100:51:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description CONN_TO_ISP-B
+ ip address 52.52.2.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2100:5200:52:2::2/64
+ no shutdown
+!
+interface GigabitEthernet0/3
+ description CONN_TO_FW2
+ ip address 128.2.0.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:1282:2::1/64
+ no shutdown
+!
+!
+router eigrp DUAL-STACK
+ !
+ address-family ipv4 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+  exit-af-topology
+  network 128.2.0.1 0.0.0.0
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 10
+  !
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface GigabitEthernet0/3
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   default-metric 10000 10 255 1 1500
+  exit-af-topology
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+no scheduler allocate
+!
+end

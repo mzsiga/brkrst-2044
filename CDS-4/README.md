@@ -464,12 +464,12 @@ Here are those screenshots showing these details:
 
 Now that we have shown the intended policies, lets test them with ping and traceroute.
 
+```
 R7 2001:1284:0:44::44
 R8 2001:1284:0:128::44
 Internet Server 1: 2000:16:16:16::16
 Internet Server 2: 2001:5000::1
 
-```
 #R7 and R8:
 ping 2000:16:16:16::16
 ping 2001:5000::1

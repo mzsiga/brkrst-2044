@@ -174,7 +174,7 @@ ip access-list extended Internet_Inbound
 !
 !
 !
-access-list 100 permit ip 10.2.2.0 0.0.0.255 any
+access-list 100 permit ip 10.2.0.0 0.0.255.255 any
 !
 control-plane
 !

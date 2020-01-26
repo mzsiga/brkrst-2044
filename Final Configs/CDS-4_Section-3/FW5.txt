@@ -1,10 +1,11 @@
-# FW3's Initial configuration
+# CDS-4 Section 3: FW5's Final configuration
 
+version 15.6
 service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname FW3
+hostname FW5
 !
 boot-start-marker
 boot-end-marker
@@ -41,14 +42,8 @@ multilink bundle-name authenticated
 !
 !
 !
-crypto pki trustpoint _SmartCallHome_ServerCA
- revocation-check crl
 !
-crypto pki trustpool policy
- revocation-check none
-!
-!
-crypto pki certificate chain _SmartCallHome_ServerCA
+username cisco privilege 15 secret 5 $1$l9lw$LNe7WJtOEiOCjWwChVnQH/
 !
 redundancy
 !
@@ -56,30 +51,6 @@ no cdp log mismatch duplex
 !
 ip tcp synwait-time 5
 !
-class-map match-all inspection_default
-!
-policy-map global_policy
- class inspection_default
-!
-interface Loopback3
- ip address 10.3.3.3 255.255.255.0
- ip nat inside
- ip virtual-reassembly in
- no shutdown
-!
-interface Loopback33
- ip address 10.3.33.33 255.255.255.255
- ip nat inside
- ip virtual-reassembly in
- ipv6 address 2001:1283:0:33::33/128
- no shutdown
-!
-interface Loopback3310
- ip address 10.3.128.33 255.255.255.255
- ip nat inside
- ip virtual-reassembly in
- ipv6 address 2001:1283:8:33::33/128
- no shutdown
 !
 interface GigabitEthernet0/0
  description NOT USED
@@ -90,22 +61,26 @@ interface GigabitEthernet0/0
  media-type rj45
 !
 interface GigabitEthernet0/1
- description CONN_TO_SW1
- no ip address
+ description CONN_TO_R6
+ ip address 128.4.128.2 255.255.255.252
  ip nat outside
  ip virtual-reassembly in
  duplex auto
  speed auto
  media-type rj45
+ ipv6 address 2001:1284:4:62::2/64
  no shutdown
 !
 interface GigabitEthernet0/2
- description NOT USED
- no ip address
- shutdown
+ description CONN_TO_R8
+ ip address 10.4.128.1 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
  duplex auto
  speed auto
  media-type rj45
+ ipv6 address 2001:1284:4:28::2/64
+ no shutdown
 !
 interface GigabitEthernet0/3
  description NOT USED
@@ -121,10 +96,17 @@ ip forward-protocol nd
 no ip http server
 no ip http secure-server
 ip nat inside source list 100 interface GigabitEthernet0/1 overload
-ip nat inside source static 10.3.33.33 128.3.33.33
-ip nat inside source static 10.3.128.33 128.3.128.33
+ip nat inside source static 10.4.128.44 128.4.128.44
+ip route 0.0.0.0 0.0.0.0 128.4.128.1
+ip route 10.4.128.0 255.255.128.0 10.4.128.2
+ip route 128.4.255.254 255.255.255.255 10.4.128.2
 !
-access-list 100 permit ip 10.3.0.0 0.0.255.255 any
+ipv6 route 2001:1284:4:56::/64 2001:1284:4:62::6
+ipv6 route 2001:1284::/44 2001:1284:4:28::8
+ipv6 route ::/0 2001:1284:4:62::6
+!
+!
+access-list 100 permit ip 10.4.128.0 0.0.127.255 any
 !
 control-plane
 !
@@ -137,8 +119,8 @@ line aux 0
  privilege level 15
  logging synchronous
 line vty 0 4
- login
- transport input none
+ login local
+ transport input telnet
 !
 no scheduler allocate
 !
